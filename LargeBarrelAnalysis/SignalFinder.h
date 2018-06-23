@@ -27,14 +27,6 @@ class JPetWriter;
 #define override
 #endif
 
-/**
- * @brief User Task: method organizing Signal Channels to Raw Signals
- *
- * Task organizes Signal Channels from every JPetTimeWindow to Raw Signals
- * Parameters for time window values used in tools can be specified in user options,
- * default are provided.
- */
-
 class SignalFinder: public JPetUserTask
 {
 public:
@@ -43,17 +35,15 @@ public:
   virtual bool init() override;
   virtual bool exec() override;
   virtual bool terminate() override;
+  bool fSaveControlHistos = true;
 
 protected:
   void saveRawSignals(const std::vector<JPetRawSignal>& sigChVec);
-  const std::string kEdgeMaxTimeParamKey = "SignalFinder_EdgeMaxTime_float";
-  const std::string kLeadTrailMaxTimeParamKey = "SignalFinder_LeadTrailMaxTime_float";
-  const std::string kSaveControlHistosParamKey = "Save_Cotrol_Histograms_bool";
+  const std::string fEdgeMaxTimeParamKey = "SignalFinder_EdgeMaxTime_float"; 
+  const std::string fLeadTrailMaxTimeParamKey = "SignalFinder_LeadTrailMaxTime_float";
+  Float_t kSigChEdgeMaxTime = 20000; //[ps]
+  Float_t kSigChLeadTrailMaxTime = 300000; //[ps]
   const int kNumOfThresholds = 4;
-  double fSigChLeadTrailMaxTime = 25000.0;
-  double fSigChEdgeMaxTime = 5000.0;
-  bool fSaveControlHistos = true;
-  void initialiseHistograms();
 };
 #endif
 /*  !SIGNALFINDER_H */

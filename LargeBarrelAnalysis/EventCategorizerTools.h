@@ -1,9 +1,5 @@
 /**
-<<<<<<< HEAD
- *  @copyright Copyright 2017 The J-PET Framework Authors. All rights reserved.
-=======
  *  @copyright Copyright 2016 The J-PET Framework Authors. All rights reserved.
->>>>>>> kdulski_EvCatTools
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may find a copy of the License in the LICENCE file.
@@ -17,41 +13,6 @@
  *  @file EventCategorizerTools.h
  */
 
-<<<<<<< HEAD
-#ifndef _EVENTCATEGORIZERTOOLS_H_
-#define _EVENTCATEGORIZERTOOLS_H_
-
-#include <JPetStatistics/JPetStatistics.h>
-#include <JPetEvent/JPetEvent.h>
-#include <JPetHit/JPetHit.h>
-#define kLightVelocity_cm_ns 29.9792458
-#define kUndefinedValue 999.0
-
-/**
- * @brief Tools for Event Categorization
- *
- * Lots of tools in constatnt developement.
- */
-class EventCategorizerTools
-{
-public:
-  static bool checkFor2Gamma(const JPetEvent& event, JPetStatistics& stats,
-    bool saveHistos, double b2bSlotThetaDiff);
-  static bool checkFor3Gamma(const JPetEvent& event, JPetStatistics& stats, bool saveHistos);
-  static bool checkForPrompt(const JPetEvent& event, JPetStatistics& stats,
-    bool saveHistos, double deexTOTCutMin, double deexTOTCutMax);
-  static bool checkForScatter(const JPetEvent& event, JPetStatistics& stats,
-    bool saveHistos, double scatterTOFTimeDiff);
-  static double calculateTOT(const JPetHit& hit);
-  static double calculateDistance(const JPetHit& hit1, const JPetHit& hit2);
-  static double calculateScatteringTime(const JPetHit& hit1, const JPetHit& hit2);
-  static double calculateScatteringAngle(const JPetHit& hit1, const JPetHit& hit2);
-  static double calculateTOF(const JPetHit& firstHit, const JPetHit& latterHit);
-  static TVector3 calculateAnnihilationPoint(const JPetHit& firstHit, const JPetHit& latterHit);
-};
-
-#endif /*  !EVENTCATEGORIZERTOOLS_H */
-=======
 #ifndef EVENTCATEGORIZERTOOLS_H
 #define EVENTCATEGORIZERTOOLS_H
 #include <vector>
@@ -98,4 +59,3 @@ public:
 };
 
 #endif
->>>>>>> kdulski_EvCatTools
