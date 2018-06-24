@@ -71,6 +71,11 @@ bool EventCategorizer::init()
                100, -60.0, 60.0)
     );
     getStatistics().createHistogram(
+      new TH1F("time_diff",
+               "absolute time difference",
+               100, 0.0, 6000.0)
+    );
+    getStatistics().createHistogram(
       new TH2F("hit_distanece_vs_time_diff",
                "Two Hit distance vs. abs time difference",
                100, 0.0, 150.0,
@@ -149,6 +154,8 @@ bool EventCategorizer::exec()
                 ->Fill(secondHit.getPosY());
                 getStatistics().getHisto1D("hits_z_pos")
                 ->Fill(secondHit.getPosZ());
+                getStatistics().getHisto1D("time_diff")
+                ->Fill(timeDiff);
                 getStatistics().getHisto2D("hit_distanece_vs_time_diff")
                 ->Fill(distance, timeDiff);
                 getStatistics().getHisto2D("hit_distanece_vs_theta_diff")
