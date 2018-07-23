@@ -51,6 +51,7 @@ add_subdirectory(ImageReconstruction)
 add_subdirectory(PhysicAnalysis)
 add_subdirectory(CosmicAnalysis)
 add_subdirectory(Imaging)
+add_subdirectory(MirrorAnalysis)
 
 
 

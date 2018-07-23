@@ -19,7 +19,7 @@
 #include "../LargeBarrelAnalysis/SignalTransformer.h"
 #include "../LargeBarrelAnalysis/HitFinder.h"
 #include "../LargeBarrelAnalysis/EventFinder.h"
-#include "EventCategorizerImaging.h"
+#include "EventCategorizer.h"
 
 using namespace std;
 
@@ -29,18 +29,17 @@ int main(int argc, const char* argv[])
 
   manager.registerTask<TimeWindowCreator>("TimeWindowCreator");
   manager.registerTask<SignalFinder>("SignalFinder");
-  manager.registerTask<SignalTransformer>("SignalTransformer"); 
-  manager.registerTask<HitFinder>("HitFinder"); 
+  manager.registerTask<SignalTransformer>("SignalTransformer");
+  manager.registerTask<HitFinder>("HitFinder");
   manager.registerTask<EventFinder>("EventFinder");
-  manager.registerTask<EventCategorizerImaging>("EventCategorizerImaging");
-  
-  manager.useTask("TimeWindowCreator", "hld", "tslot.raw");
-  manager.useTask("TimeCalibLoader", "tslot.raw", "tslot.calib");
+  manager.registerTask<EventCategorizer>("EventCategorizer");
+
+  manager.useTask("TimeWindowCreator", "hld", "tslot.calib");
   manager.useTask("SignalFinder", "tslot.calib", "raw.sig");
   manager.useTask("SignalTransformer", "raw.sig", "phys.sig");
   manager.useTask("HitFinder", "phys.sig", "hits");
   manager.useTask("EventFinder", "hits", "unk.evt");
-  manager.useTask("EventCategorizerImaging", "unk.evt", "imag.evt");
-    
+  manager.useTask("EventCategorizer", "unk.evt", "cat.evt");
+  
   manager.run(argc, argv);
 }
