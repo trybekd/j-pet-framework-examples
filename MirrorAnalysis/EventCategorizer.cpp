@@ -188,7 +188,7 @@ JPetEvent EventCategorizer::physicsAnalysis( vector<JPetHit> hits )
 			double TOTofHit = EventCategorizerTools::calculateTOT( hits[i] );
 			if( fSaveControlHistos )
 			{
-				getStatistics().getHisto1D("TOT")->Fill( TOTofHit );
+			  getStatistics().getHisto1D("TOT")->Fill( TOTofHit/1000. ); //remember it is in ps but the plot in ns
 			}
 			if( TOTofHit >= fMinAnnihilationTOT && TOTofHit <= fMaxAnnihilationTOT )
 			{
@@ -213,7 +213,9 @@ JPetEvent EventCategorizer::physicsAnalysis( vector<JPetHit> hits )
 		physicEvent.setEventType(JPetEventType::kPrompt);
 		if( annihilationHits.getHits().size() > 0 )
 		{
-			getStatistics().getHisto1D("Positronium_Lifetime")->Fill( annihilationHits.getHits().at(0).getTime()/1000. - deexcitationHits.getHits().at(0).getTime()/1000. );
+		  
+		  for(int i=0; i < (int)annihilationHits.getHits().size(); ++i)
+			getStatistics().getHisto1D("Positronium_Lifetime")->Fill( annihilationHits.getHits().at(i).getTime()/1000. - deexcitationHits.getHits().at(0).getTime()/1000. );
 		}
 	}
 	if( EventCategorizerTools::checkFor2Gamma(annihilationHits, getStatistics(), fSaveControlHistos, fBackToBackAngleWindow, fMaxTimeDiff, fMaxDistOfDecayPlaneFromCenter) )

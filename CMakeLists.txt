@@ -40,17 +40,17 @@ execute_process(COMMAND ${DOWNLOAD_MORE_DATA})
 
 ################################################################################
 ## Directories with examples
-add_subdirectory(LargeBarrelAnalysis)
-add_subdirectory(VelocityCalibration)
-add_subdirectory(NewAnalysisTemplate)
-add_subdirectory(ScopeLoaderExample)
-add_subdirectory(TimeCalibration)
-add_subdirectory(ScopeAnalysis)
-add_subdirectory(modules)
-add_subdirectory(ImageReconstruction)
-add_subdirectory(PhysicAnalysis)
-add_subdirectory(CosmicAnalysis)
-add_subdirectory(Imaging)
+#add_subdirectory(LargeBarrelAnalysis)
+#add_subdirectory(VelocityCalibration)
+#add_subdirectory(NewAnalysisTemplate)
+#add_subdirectory(ScopeLoaderExample)
+#add_subdirectory(TimeCalibration)
+#add_subdirectory(ScopeAnalysis)
+#add_subdirectory(modules)
+#add_subdirectory(ImageReconstruction)
+#add_subdirectory(PhysicAnalysis)
+#add_subdirectory(CosmicAnalysis)
+#add_subdirectory(Imaging)
 add_subdirectory(MirrorAnalysis)
 
 
