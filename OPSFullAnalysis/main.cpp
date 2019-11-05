@@ -20,7 +20,6 @@
 #include "../LargeBarrelAnalysis/HitFinder.h"
 #include "../LargeBarrelAnalysis/EventFinder.h"
 #include "TOTPlotter.h"
-#include "TOTLoader.h"
 #include "OPSCandidateFinder.h"
 #include "OPSReconstructor.h"
 #include "OPSAnalyzer.h"
@@ -49,12 +48,12 @@ int main(int argc, const char* argv[])
   manager.useTask("SignalFinder", "tslot.calib", "raw.sig");
   manager.useTask("SignalTransformer", "raw.sig", "phys.sig");
   manager.useTask("HitFinder", "phys.sig", "hits");
+  */
+  
   manager.useTask("TOTPlotter", "hits", "hits.plot");
   manager.useTask("EventFinder", "hits.plot", "pre.evt");
   manager.useTask("OPSCandidateFinder", "pre.evt", "ops.cand.evt");
-  */
 
-  
   manager.useTask("OPSReconstructor", "ops.cand.evt", "ops.rec.evt");
   manager.useTask("OPSAnalyzer", "ops.rec.evt", "ops.ana.evt");
   manager.useTask("OPSCleaner", "ops.ana.evt", "ops.cln.evt");

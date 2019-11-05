@@ -17,6 +17,7 @@
 #define OPSANALYSISTOOLS_H
 
 #include <JPetHit/JPetHit.h>
+#include <JPetTimeWindowMC/JPetTimeWindowMC.h>
 #include "JPetOpsEvent.h"
 #include <vector>
 #include <tuple>
@@ -40,7 +41,8 @@ namespace ops_analysis_tools{
     Prompt,
   };
 
-  HitCandidateType identifyHitType(const JPetHit& hit, std::vector<double>& tot_cuts);
+  HitCandidateType identifyHitType(const JPetHit& hit, std::vector<double>& tot_cuts,
+                                   bool is_mc, std::vector<double>& mc_edep_cuts);
 
   SmallestAngles calcSmallestAnglesXY(const JPetOpsEvent& event);
   //  std::pair<double, double> calcSmallestAngles(const JPetOpsEvent& event);
@@ -48,6 +50,8 @@ namespace ops_analysis_tools{
   Operators calcOperators(const JPetOpsEvent& event, Kinematics3g kinematics);
   Distances calcLORdistances(const JPetOpsEvent& event);
   ScatterTests calcScatterTests(const JPetOpsEvent& event);
+
+  
 };
 
 #endif /* OPSANALYSISTOOLS_H */

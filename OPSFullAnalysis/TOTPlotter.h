@@ -36,7 +36,28 @@ public:
   virtual bool terminate() override;
 
 protected:
+  bool fIsMC = false;
   std::vector<JPetHit> fHitVector;
   JPetHit calculateTOT(const JPetHit& hit);
+
+  const std::string fEventTimeParamKey = "OPSFinder_FineEventTime_float";
+
+  const std::vector<std::string> fTOTcutKeys = {
+    "OPSFinder_TOTanh_low_float",
+    "OPSFinder_TOTanh_high_float",
+    "OPSFinder_TOTdex_low_float",
+    "OPSFinder_TOTdex_high_float"
+  };
+
+  const std::vector<std::string> fEdepMCcutKeys = {
+    "OPSFinder_MC_Edep_anh_low_float",
+    "OPSFinder_MC_Edep_anh_high_float",
+    "OPSFinder_MC_Edep_dex_low_float",
+    "OPSFinder_MC_Edep_dex_high_float"
+  };
+
+  std::vector<double> fTOTcuts;
+  std::vector<double> fMCEdepCuts;
+
 };
 #endif /*  !TOTPLOTTER  */

@@ -41,7 +41,9 @@ bool OPSReconstructor::init()
 
   getStatistics().createHistogram(new TH1F("anh_hits_in_evt", "No. annihilation hits in event", 6, -0.5, 5.5));
   getStatistics().createHistogram(new TH1F("evt_rej_z", "Was event rejected by Z requirement?", 2, -0.5, 1.5));
-                                  
+  getStatistics().createHistogram(new TH1F("reco_error", "Was reconstruction error?", 2, -0.5, 1.5));
+
+  
   // create histograms for annihilation position
   getStatistics().createHistogram(new TH2F("decay point XY",
 					   "transverse position of the o-Ps->3g decay point;"
@@ -186,6 +188,8 @@ bool OPSReconstructor::exec()
       double t[2];
       error = fReconstructor->getSolution(sol[1], t[1], 1);
 
+      getStatistics().getHisto1D("reco_error")->Fill(error!=0);
+      
       if(error == 0){
 	getStatistics().getHisto2D("decay point XY")->Fill(sol[1].X(), sol[1].Y());
 	getStatistics().getHisto2D("decay point XZ")->Fill(sol[1].Z(), sol[1].X());

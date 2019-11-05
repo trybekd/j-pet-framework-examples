@@ -46,12 +46,22 @@ protected:
     "OPSFinder_TOTdex_high_float"
   };
 
+  const std::vector<std::string> fEdepMCcutKeys = {
+    "OPSFinder_MC_Edep_anh_low_float",
+    "OPSFinder_MC_Edep_anh_high_float",
+    "OPSFinder_MC_Edep_dex_low_float",
+    "OPSFinder_MC_Edep_dex_high_float"
+  };
+
+  
   const std::string fAngleSumCutKey = "OPSFinder_angles_sum_cut_float";
   float fAngleSumCut;
   bool fTimeWindowHadAnnihilation = false;
   
   std::vector<double> fTOTcuts;
+  std::vector<double> fMCEdepCuts;
 
+  bool fIsMC = false;
   bool fSaveControlHistos = true;
   void saveEvents(const std::vector<JPetEvent>& event);
   std::vector<JPetEvent> refineEvents(const JPetTimeWindow & preEvents);

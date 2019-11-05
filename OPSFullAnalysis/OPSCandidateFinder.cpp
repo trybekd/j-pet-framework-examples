@@ -42,12 +42,25 @@ bool OPSCandidateFinder::init()
       fTOTcuts.push_back(getOptionAsFloat(fParams.getOptions(), key));
     }else{
       ERROR(Form("TOT cut value (%s) not provided by the user!", key.c_str()));
-      return false;
     }
   }
-  INFO(Form("Loaded TOT cut values: (%lf, %lf) and (%lf, %lf).",
-	    fTOTcuts[0], fTOTcuts[1], fTOTcuts[2], fTOTcuts[3]));  
-
+  if(fTOTcuts.size() == fTOTcutKeys.size()){
+    INFO(Form("Loaded TOT cut values: (%lf, %lf) and (%lf, %lf).",
+              fTOTcuts[0], fTOTcuts[1], fTOTcuts[2], fTOTcuts[3]));
+  }
+  
+  for(auto key : fEdepMCcutKeys){
+    if (isOptionSet(fParams.getOptions(), key)){
+      fMCEdepCuts.push_back(getOptionAsFloat(fParams.getOptions(), key));
+    }else{
+      ERROR(Form("MC Edep cut value (%s) not provided by the user!", key.c_str()));
+    }
+  }
+  if(fMCEdepCuts.size() == fEdepMCcutKeys.size()){
+    INFO(Form("Loaded Edep cut values for MC: (%lf, %lf) and (%lf, %lf).",
+              fMCEdepCuts[0], fMCEdepCuts[1], fMCEdepCuts[2], fMCEdepCuts[3]));  
+  }
+  
   if (isOptionSet(fParams.getOptions(), fAngleSumCutKey)){
     fAngleSumCut = getOptionAsFloat(fParams.getOptions(), fAngleSumCutKey);
   }else{
@@ -171,13 +184,16 @@ bool OPSCandidateFinder::init()
 
 bool OPSCandidateFinder::exec()
 {
-
+  const JPetTimeWindowMC* time_window_mc = nullptr;
+  if (time_window_mc = dynamic_cast<const JPetTimeWindowMC*>(fEvent)) {
+    fIsMC = true;    
+  }
+  
   if (auto timeWindow = dynamic_cast<const JPetTimeWindow* const>(fEvent)) {
 
     fTimeWindowHadAnnihilation = false;
     std::vector<JPetEvent> events = findEventCandidates(refineEvents(*timeWindow));
     getStatistics().getHisto1D("event_candidates_tw")->Fill(events.size());
-    //    events = vetoScatterings( events );
 
     // only save anything from a time window
     // if at least one 3g event was identified there
@@ -221,8 +237,6 @@ std::vector<JPetEvent> OPSCandidateFinder::refineEvents(const JPetTimeWindow& pr
 
       JPetHit startHit = hits[s];
 
-      //if( identifyHitType(startHit, fTOTcuts) != HitCandidateType::None )
-      
       newEvent.addHit(startHit);
 
       int k = 1;
@@ -259,7 +273,7 @@ std::vector<JPetEvent> OPSCandidateFinder::findEventCandidates(const std::vector
     
     // count hits of particular types
     for(const auto& hit : event.getHits()){
-      HitCandidateType type = identifyHitType(hit, fTOTcuts);
+      HitCandidateType type = identifyHitType(hit, fTOTcuts, fIsMC, fMCEdepCuts);
       if(type==HitCandidateType::Annihilation){
         n_anh_hits++;
       }else if(type==HitCandidateType::Prompt){
@@ -300,7 +314,7 @@ std::vector<JPetEvent> OPSCandidateFinder::findEventCandidates(const std::vector
       // remove hits other than annihilation and prompt
       std::vector<JPetHit> new_hits;
       for(const auto& hit : event.getHits()){
-        HitCandidateType type = identifyHitType(hit, fTOTcuts);
+        HitCandidateType type = identifyHitType(hit, fTOTcuts, fIsMC, fMCEdepCuts);
         if(type==HitCandidateType::Annihilation || type==HitCandidateType::Prompt){
           JPetHit new_hit(hit);
           double qual = -1.0;

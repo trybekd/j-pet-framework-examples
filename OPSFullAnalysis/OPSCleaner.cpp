@@ -59,8 +59,7 @@ bool OPSCleaner::init()
   if (isOptionSet(fParams.getOptions(), fAngleSumCutKey)){
     fAngleSumCut = getOptionAsFloat(fParams.getOptions(), fAngleSumCutKey);
   }else{
-    ERROR("Angles sum cut value not provided by the user!");
-    return false;
+    WARNING("Angles sum cut value not provided by the user!");
   }
 
   // initialize counters
@@ -251,7 +250,7 @@ bool OPSCleaner::init()
                      400, 0., 100.)
             );  
 
-return true;
+  return true;
 }
 
 bool OPSCleaner::exec()

@@ -44,13 +44,24 @@ namespace ops_analysis_tools{
      Optionally, this function also discriminates corrupted hits 
      by identifying then as None
      
-     @param tot_cuts vector of 4 real numbers describing TOT cut boundaries:
+     @param is_mc flag indicating that the given hit is MC-simulated; in such case
+     identification is performed using deposited energy rather than TOT
+
+     @param tot_cuts vector of 4 real numbers describing TOT cut boundaries for use with data hits:
      tot_cuts[0] - lower annihilation photon TOT cut
      tot_cuts[1] - upper annihilation photon TOT cut
      tot_cuts[2] - lower prompt photon TOT cut
      tot_cuts[3] - upper prompt photon TOT cut
+
+     @param mc_edep_cuts vector of 4 real numbers describing deposited energy cut boundaries for use with MC hits:
+     mc_edep_cuts[0] - lower annihilation photon Edep cut
+     mc_edep_cuts[1] - upper annihilation photon Edep cut
+     mc_edep_cuts[2] - lower prompt photon Edep cut
+     mc_edep_cuts[3] - upper prompt photon Edep cut
+
   */
-  HitCandidateType identifyHitType(const JPetHit& hit, std::vector<double>& tot_cuts){
+  HitCandidateType identifyHitType(const JPetHit& hit, std::vector<double>& tot_cuts,
+                                   bool is_mc, std::vector<double>& mc_edep_cuts){
     double tot = hit.getEnergy();
 
     // if hit was corrupted, do not identify its type
@@ -58,10 +69,22 @@ namespace ops_analysis_tools{
       return HitCandidateType::None;
     }
 
+    if( is_mc ){
+      // check annihilation Edep cuts
+      if( tot > mc_edep_cuts[0] && tot < mc_edep_cuts[1] ){
+        return HitCandidateType::Annihilation;
+      }
+      // check deexcitation Edep cuts
+      if( tot > mc_edep_cuts[2] && tot < mc_edep_cuts[3] ){
+        return HitCandidateType::Prompt;
+      } 
+    }
+    
     // check annihilation TOT cuts
     if( tot > tot_cuts[0] && tot < tot_cuts[1] ){
       return HitCandidateType::Annihilation;
     }
+    // check deexcitation TOT cuts
     if( tot > tot_cuts[2] && tot < tot_cuts[3] ){
       return HitCandidateType::Prompt;
     }
