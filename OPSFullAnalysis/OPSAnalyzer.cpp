@@ -283,11 +283,17 @@ std::vector<JPetOpsEvent> OPSAnalyzer::makeOPSEvents(const std::vector<JPetOpsEv
       getStatistics().getHisto2D("anh_XY_nocenter_lt_cut")->Fill(new_event.getAnnihilationPoint().Y(),
 								 new_event.getAnnihilationPoint().X());
     }
-  }else if(n_anh==1){ // 3g event did not have a prompt -> no lifetime
-    JPetOpsEvent new_event = anh_events.front().get();
-    new_event.setHasPrompt(false);
-    new_event.setLifeTime(-1.e12);
-    newEventVec.push_back(new_event);
+  }else if(n_anh >= 1){ // 3g event did not have a prompt -> no lifetime
+    for(auto& event: anh_events){
+      JPetOpsEvent new_event = event;
+      new_event.setHasPrompt(false);
+      new_event.setLifeTime(-1.e12);
+      newEventVec.push_back(new_event);
+    }
+    //JPetOpsEvent new_event = anh_events.front().get();
+    // new_event.setHasPrompt(false);
+    // new_event.setLifeTime(-1.e12);
+    // newEventVec.push_back(new_event);
   }
   
   return newEventVec;
