@@ -21,6 +21,7 @@
 #include <cmath>
 #include <cassert>
 #include <deque>
+#include <algorithm>
 
 namespace ops_analysis_tools{
 
@@ -179,6 +180,8 @@ namespace ops_analysis_tools{
       return std::make_tuple(angles, energies, momenta);
     }
 
+    std::random_shuffle(momenta.begin(), momenta.end());
+    
     // calculate the angles (in radians)
     double th12 = relativeAngle(momenta, 1, 2);
     double th23 = relativeAngle(momenta, 2, 3);
@@ -209,10 +212,10 @@ namespace ops_analysis_tools{
     std::sort(angles.begin(), angles.end());
     
     // correct the maximum angle (this correction has no effect on energies' calculation)
-    double epsilon = 1.e-4;
-    if(fabs(angles[2] - (angles[0]+angles[1])) < epsilon){
-      angles[2] = 360. - (angles[0] + angles[1]);
-    }
+    // double epsilon = 1.e-4;
+    // if(fabs(angles[2] - (angles[0]+angles[1])) < epsilon){
+    //   angles[2] = 360. - (angles[0] + angles[1]);
+    // }
     
     return std::make_tuple(angles, energies, momenta);
   }
