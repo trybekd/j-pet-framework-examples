@@ -37,6 +37,7 @@ public:
   virtual bool exec() override;
   virtual bool terminate() override;
 protected:
+  bool fIsMC = false;
   Reconstructor * fReconstructor;  
   const std::string fTimeRecalibFileKey = "OPSReconstructor_TimeRecalibFile_std::string";
   std::string fTimeRecalibFile = "";

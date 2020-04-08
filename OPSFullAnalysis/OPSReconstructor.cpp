@@ -18,6 +18,7 @@
 #include "OPSReconstructor.h"
 #include <JPetOptionsTools/JPetOptionsTools.h>
 #include <JPetGeomMapping/JPetGeomMapping.h>
+#include <JPetMCHit/JPetMCHit.h>
 #include "JPetOpsEvent.h"
 #include <fstream>
 using namespace jpet_options_tools;
@@ -61,37 +62,32 @@ bool OPSReconstructor::init()
 					   )
 				  );
 
-  // XY projections for different Z
-  getStatistics().createHistogram(new TH2F("xy_0",
-					   "o-Ps->3g XY for Z in (-1,+1) cm;"
+  // create histograms for annihilation position - MC signal events only
+  getStatistics().createHistogram(new TH2F("decay point XY - signal",
+					   "transverse position of the o-Ps->3g decay point;"
 					   "X [cm]; Y [cm]",
 					   100, -50., 50.,
 					   100, -50., 50.
 					   )
 				  );
-  
-  
-  for(int i=1;i<7;++i){
-    
-    int z0 = 1 + 2 * (i-1);
-    int z1 = z0 + 2;
-    getStatistics().createHistogram(new TH2F(Form("xy_+%d", i),
-					     Form("o-Ps->3g XY for Z in (%d,%d) cm;"
-						  "X [cm]; Y [cm]", z0, z1),
-					     100, -50., 50.,
-					     100, -50., 50.
-					     )
-				    );
-    getStatistics().createHistogram(new TH2F(Form("xy_-%d", i),
-					     Form("o-Ps->3g XY for Z in (-%d,-%d) cm;"
-						  "X [cm]; Y [cm]", z1, z0),
-					     100, -50., 50.,
-					     100, -50., 50.
-					     )
-				    );
-    
-  }
 
+  getStatistics().createHistogram(new TH2F("decay point XZ - signal",
+					   "position of the o-Ps->3g decay point in XZ;"
+					   "Z [cm]; X [cm]",
+					   100, -50., 50.,
+					   100, -50., 50.
+					   )
+				  );
+  
+  getStatistics().createHistogram(new TH1F("generated multiplicity", "Generated event multiplicity",
+                                           4, -0.5, 3.5
+                                           )
+                                  );
+  
+  
+  getStatistics().createHistogram(new TH1F("z_res", "Hit Z resolution", 100, -5.0, 5.0));
+  getStatistics().createHistogram(new TH1F("t_res", "Hit T resolution", 100, -1.0, 1.0));
+  
   // optionally read a text file with additional per-strip time calibration
   if (isOptionSet(fParams.getOptions(), fTimeRecalibFileKey)){
     fTimeRecalibFile = getOptionAsString(fParams.getOptions(), fTimeRecalibFileKey);
@@ -118,7 +114,11 @@ bool OPSReconstructor::init()
 
 bool OPSReconstructor::exec()
 {
-
+  const JPetTimeWindowMC* time_window_mc = nullptr;
+  if (time_window_mc = dynamic_cast<const JPetTimeWindowMC*>(fEvent)) {
+    fIsMC = true;    
+  }
+  
   if (auto timeWindow = dynamic_cast<const JPetTimeWindow* const>(fEvent)) {
 
     uint n = timeWindow->getNumberOfEvents();
@@ -151,6 +151,23 @@ bool OPSReconstructor::exec()
       if( hits.size() > 3){
         continue;
       }
+
+      /********************************************************************/
+      /* MC analysis                                                      */
+      /********************************************************************/
+      if(fIsMC){
+
+        // check z and t resolution
+        for(auto & hit : hits){
+          auto& mc_hit = time_window_mc->getMCHit<JPetMCHit>(hit.getMCindex());
+          getStatistics().getHisto1D("z_res")->Fill(hit.getPos().Z() - mc_hit.getPos().Z());
+          getStatistics().getHisto1D("t_res")->Fill((hit.getTime() - mc_hit.getTime())/1000.);
+        }
+
+      }
+      /**************************************************************************/
+      /* End of MC analysis                                                     */
+      /**************************************************************************/
       
       //
       bool z_ok = true;
@@ -177,7 +194,21 @@ bool OPSReconstructor::exec()
           hit.setTime(hit.getTime() - fTimeRecalibConstants.at(bs_id-1)*1000.);
         }
       }
-      
+
+      // test with no smearing at all
+      /*
+      if(fIsMC){
+
+        // use the exact hit positions from MCHits
+        for(auto & hit : hits){
+          auto& mc_hit = time_window_mc->getMCHit<JPetMCHit>(hit.getMCindex());
+          hit.setPosX( mc_hit.getPosX() );
+          hit.setPosY( mc_hit.getPosY() );
+        }
+
+      }
+      */      
+
       // setup reconstruction
       fReconstructor->setGamma(0, hits.at(0));
       fReconstructor->setGamma(1, hits.at(1));
@@ -186,27 +217,34 @@ bool OPSReconstructor::exec()
       int error = 0;
       TVector3 sol[2];
       double t[2];
+      error = fReconstructor->getSolution(sol[0], t[0], 0);
       error = fReconstructor->getSolution(sol[1], t[1], 1);
-
+      
       getStatistics().getHisto1D("reco_error")->Fill(error!=0);
       
       if(error == 0){
-	getStatistics().getHisto2D("decay point XY")->Fill(sol[1].X(), sol[1].Y());
-	getStatistics().getHisto2D("decay point XZ")->Fill(sol[1].Z(), sol[1].X());
+	getStatistics().getHisto2D("decay point XY")->Fill(sol[0].X(), sol[0].Y());
+	getStatistics().getHisto2D("decay point XZ")->Fill(sol[0].Z(), sol[0].X());
 
-	// fill appropriate XY projection
-	int projection = (sol[1].Z()-1.0)/2.0;
-	if( abs(projection) < 7 ){
-	  TString histo_name;
-	  if( projection == 0 ) histo_name = "xy_0";
-	  else if( projection > 0) histo_name = Form("xy_+%d", projection);
-	  else histo_name = Form("xy_-%d", abs(projection));
-	  getStatistics().getHisto2D(histo_name)->Fill(sol[1].X(), sol[1].Y());
-	}
-	
+        // test only for events where all hits came from the same annihilation
+        if(fIsMC){
+          auto& mc_hit0 = time_window_mc->getMCHit<JPetMCHit>(hits.at(0).getMCindex());
+          auto& mc_hit1 = time_window_mc->getMCHit<JPetMCHit>(hits.at(1).getMCindex());
+          auto& mc_hit2 = time_window_mc->getMCHit<JPetMCHit>(hits.at(2).getMCindex());
+        
+          if( mc_hit0.getMCVtxIndex() == mc_hit1.getMCVtxIndex() &&
+              mc_hit0.getMCVtxIndex() == mc_hit2.getMCVtxIndex() ){
+
+            getStatistics().getHisto1D("generated multiplicity")->Fill(mc_hit0.getGenGammaMultiplicity());
+          
+            getStatistics().getHisto2D("decay point XY - signal")->Fill(sol[0].X(), sol[0].Y());
+            getStatistics().getHisto2D("decay point XZ - signal")->Fill(sol[0].Z(), sol[0].X());
+          }
+        }
+        
 	JPetOpsEvent ops_event(event);
-	ops_event.setAnnihilationPoint(sol[1]);
-	ops_event.setAnnihilationTime(t[1]*1000.); // time resulting from reconstructor is in [ns]
+	ops_event.setAnnihilationPoint(sol[0]);
+	ops_event.setAnnihilationTime(t[0]*1000.); // time resulting from reconstructor is in [ns]
 	
 	fOutputEvents->add<JPetOpsEvent>(ops_event);
 	
