@@ -29,8 +29,20 @@
 #	define override
 #endif
 
+enum MCEventType{
+  ANY,
+  SIGNAL,
+  POSSIBLE_SIGNAL,
+  ALL_BCG,
+  B2B_SCAT,
+  B2B_PROMPT,
+  RANDOM,
+  OTHER
+};
+
 struct EventInfo{
   bool event_odd;
+  MCEventType type;
   ops_analysis_tools::SmallestAngles angles_xy;
   ops_analysis_tools::SmallestAngles angles_3d;
   ops_analysis_tools::Kinematics3g kinematics;
@@ -47,10 +59,11 @@ public:
   virtual bool exec() override;
   virtual bool terminate() override;
 protected:
+  bool fIsMC = false;
   void bookHisto(TH1* h);
-  TH1F* getHisto1D(std::string name, int step);
-  TH2F* getHisto2D(std::string name, int step);
-  void fillHistos(const JPetOpsEvent& event, EventInfo evt_info, int step);
+  TH1F* getHisto1D(std::string name, MCEventType type, bool selected);
+  TH2F* getHisto2D(std::string name, MCEventType type, bool selected);
+  void fillHistos(const JPetOpsEvent& event, EventInfo evt_info, bool selected);
   
   const std::string fAngleSumCutKey = "OPSCleaner_angles_sum_cut_float";
   float fAngleSumCut;
@@ -60,6 +73,17 @@ protected:
   
   int fEventCouters[10];
 
+  std::map<MCEventType, std::string> fHistoSuffices = {
+    {ANY, "_all"},
+    {SIGNAL, "_sig"},
+    {POSSIBLE_SIGNAL, "_pos_sig"},
+    {ALL_BCG, "_bcg"},
+    {B2B_SCAT, "_b2b_scat"},
+    {B2B_PROMPT, "_b2b_prompt"},
+    {RANDOM, "_random"},
+    {OTHER, "_other"}
+  };
+  
 };
 #endif /*  !OPSCLEANER_H */
 
