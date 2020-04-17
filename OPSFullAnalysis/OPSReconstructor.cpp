@@ -223,8 +223,8 @@ bool OPSReconstructor::exec()
       getStatistics().getHisto1D("reco_error")->Fill(error!=0);
       
       if(error == 0){
-	getStatistics().getHisto2D("decay point XY")->Fill(sol[0].X(), sol[0].Y());
-	getStatistics().getHisto2D("decay point XZ")->Fill(sol[0].Z(), sol[0].X());
+	getStatistics().getHisto2D("decay point XY")->Fill(sol[1].X(), sol[1].Y());
+	getStatistics().getHisto2D("decay point XZ")->Fill(sol[1].Z(), sol[1].X());
 
         // test only for events where all hits came from the same annihilation
         if(fIsMC){
@@ -237,14 +237,14 @@ bool OPSReconstructor::exec()
 
             getStatistics().getHisto1D("generated multiplicity")->Fill(mc_hit0.getGenGammaMultiplicity());
           
-            getStatistics().getHisto2D("decay point XY - signal")->Fill(sol[0].X(), sol[0].Y());
-            getStatistics().getHisto2D("decay point XZ - signal")->Fill(sol[0].Z(), sol[0].X());
+            getStatistics().getHisto2D("decay point XY - signal")->Fill(sol[1].X(), sol[1].Y());
+            getStatistics().getHisto2D("decay point XZ - signal")->Fill(sol[1].Z(), sol[1].X());
           }
         }
         
 	JPetOpsEvent ops_event(event);
-	ops_event.setAnnihilationPoint(sol[0]);
-	ops_event.setAnnihilationTime(t[0]*1000.); // time resulting from reconstructor is in [ns]
+	ops_event.setAnnihilationPoint(sol[1]);
+	ops_event.setAnnihilationTime(t[1]*1000.); // time resulting from reconstructor is in [ns]
 	
 	fOutputEvents->add<JPetOpsEvent>(ops_event);
 	
