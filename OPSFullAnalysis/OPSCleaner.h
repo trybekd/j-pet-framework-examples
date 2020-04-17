@@ -63,7 +63,8 @@ protected:
   void bookHisto(TH1* h);
   TH1F* getHisto1D(std::string name, MCEventType type, bool selected);
   TH2F* getHisto2D(std::string name, MCEventType type, bool selected);
-  void fillHistos(const JPetOpsEvent& event, EventInfo evt_info, bool selected);
+  void fillHistos(const JPetOpsEvent& event, const EventInfo& evt_info, MCEventType type, bool selected);
+  MCEventType classifyEvent(const JPetTimeWindowMC* time_window_mc, const JPetEvent& event);
   
   const std::string fAngleSumCutKey = "OPSCleaner_angles_sum_cut_float";
   float fAngleSumCut;

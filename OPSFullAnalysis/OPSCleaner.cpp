@@ -200,6 +200,14 @@ bool OPSCleaner::init()
             );  
 
   bookHisto(
+            new TH2F("Op.corr",
+                     "Sk1 vs S(k1xk2);|S|#bullet|k_{1}#times k_{2}|;|S|#bullet |k_{1}|",
+                     1000, -1.1, 1.1,
+                     1000, -1.1, 1.1
+                     )
+            );
+  
+  bookHisto(
             new TH2F("dvts",
                      "d-ct;|d-ct|_{1} [cm]; |d-ct|_{2} [cm]",
                      400, 0., 100.,
@@ -251,126 +259,40 @@ bool OPSCleaner::exec()
 
       // Perform scatter tests
       evt_info.scatter_tests = calcScatterTests(event);
+
+      evt_info.type = ANY;
       
       // in case of MC, identify event type
       if(fIsMC){
-        evt_info.type = OTHER;
+        evt_info.type = classifyEvent(time_window_mc, event);
+      }
 
-        std::array<JPetMCHit, 3> mc_hits;
-        for(int k=0; k<3; ++k){
-          mc_hits[k] = time_window_mc->getMCHit<JPetMCHit>(event.getHits().at(k).getMCindex());        
-        }
+      /********************************************************************/
+      /* Study of particular cuts starts here                             */
+      /********************************************************************/
       
-        if( mc_hits[0].getMCVtxIndex() == mc_hits[1].getMCVtxIndex() &&
-            mc_hits[0].getMCVtxIndex() == mc_hits[2].getMCVtxIndex() ){
-          // hits from same simulated event
-
-          bool triple = false;
-          bool pair = false;
-          for(int j=0; j<3; ++j){
-            for(int k=j+1; k<3; ++k){
-              if(mc_hits[j].getGenGammaMultiplicity() == mc_hits[k].getGenGammaMultiplicity()){
-                // there was a pair with the same multiplicity
-                pair = true;
-                int pair_mult = mc_hits[k].getGenGammaMultiplicity();
-                int single_mult = mc_hits[ 3 - j - k].getGenGammaMultiplicity();
-                getStatistics().getHisto1D("pair_mc_mult")->Fill( pair_mult );
-
-                if( single_mult == pair_mult ){
-                  triple = true;
-                  break;
-                }else{ // the third hit had a different multiplicity
-                  getStatistics().getHisto2D("Mults_pair_single")->Fill(single_mult, pair_mult);
-
-                  // cases B2B_SCAT, B2B_PROMPT
-                  if(pair_mult == 2){ // there was a back-to-back event
-                    if( single_mult = 1 ){
-                      evt_info.type = B2B_PROMPT;
-                    }
-                    if( single_mult >= 100 ){
-                      evt_info.type = B2B_SCAT;
-                    }
-                  }
-                
-                }
-              
-              }
-            }
-          }
-
-          // true if there was not even a single pair
-          getStatistics().getHisto1D("all_mults_different")->Fill(!pair);
+      // fill histograms for ANY kind of events
+      // (works for data as well)
+      fillHistos(event, evt_info, ANY, false);
+      if(fIsMC){
+        fillHistos(event, evt_info, evt_info.type, false);
+      }
+      
+      if( evt_info.scatter_tests.at(0) > 15.0 ){
         
-          if(triple){ // three hits with the same MC multiplicity
-            getStatistics().getHisto1D("triple_mc_mult")->Fill(mc_hits[0].getGenGammaMultiplicity());
+        double r = event.getAnnihilationPoint().Perp();
+        if( r > 4.0 && r < 20.0 ){
 
-            if(mc_hits[0].getGenGammaMultiplicity() == 3){
-              evt_info.type = SIGNAL; // signal (3-photon) event!
-            }
-
-            if(mc_hits[0].getGenGammaMultiplicity() == 0){
-              evt_info.type = POSSIBLE_SIGNAL; // signal (3-photon) event!
-            }
-
+          fillHistos(event, evt_info, ANY, true);
+          if(fIsMC){
+            fillHistos(event, evt_info, evt_info.type, true);
+          }
           
-          }
-        
-        }else{
-          // random coincidence
-          evt_info.type = RANDOM;
-          int index = mc_hits[0].getMCVtxIndex();
-          std::cout << "R = ("
-                    << mc_hits[0].getMCVtxIndex() - index << " "
-                    << mc_hits[0].getGenGammaMultiplicity() << ") ("
-                    << mc_hits[1].getMCVtxIndex() - index << " "
-                    << mc_hits[1].getGenGammaMultiplicity() << ") ( "
-                    << mc_hits[2].getMCVtxIndex() - index << " "
-                    << mc_hits[2].getGenGammaMultiplicity() << ")" << std::endl;
-        }
-
-        if(evt_info.type == OTHER){
-          std::cout << "O = " << mc_hits[0].getGenGammaMultiplicity() << " "
-                    << mc_hits[1].getGenGammaMultiplicity() << " "
-                    << mc_hits[2].getGenGammaMultiplicity() << std::endl;
-        }
-      
-        /********************************************************************/
-        /* Study of particular cuts starts here                             */
-        /********************************************************************/
-        MCEventType evt_type = evt_info.type;
-        fillHistos(event, evt_info, false);
-        // also fill total signal/background histos
-        if( evt_info.type != SIGNAL && evt_info.type != POSSIBLE_SIGNAL ){
-          evt_info.type = ALL_BCG;
-          fillHistos(event, evt_info, false);
-        }
-        // and fill histos for any kinds of events
-        evt_info.type = ANY;
-        fillHistos(event, evt_info, false);
-        // restore the original type
-        evt_info.type = evt_type;
-      
-        if( evt_info.scatter_tests.at(0) > 15.0 ){
-        
-          double r = event.getAnnihilationPoint().Perp();
-          if( r > 4.0 && r < 20.0 ){
-            fillHistos(event, evt_info, true);
-            // also fill total signal/background histos
-            if( evt_info.type != SIGNAL && evt_info.type != POSSIBLE_SIGNAL ){
-              evt_info.type = ALL_BCG;
-              fillHistos(event, evt_info, true);
-            }
-            // and fill histos for any kinds of events
-            evt_info.type = ANY;
-            fillHistos(event, evt_info, true);
-            // restore the original type
-            evt_info.type = evt_type;
-
-          }
         }
       }
-    } // end loop over events
 
+    } // end loop over events
+    
   } else {
     return false;
   }
@@ -384,62 +306,141 @@ bool OPSCleaner::terminate()
   return true;
 }
 
-void OPSCleaner::fillHistos(const JPetOpsEvent& event, EventInfo evt_info, bool selected){
+void OPSCleaner::fillHistos(const JPetOpsEvent& event, const EventInfo& evt_info,
+                            MCEventType type, bool selected){
 
   auto& angles = std::get<0>(evt_info.kinematics); 
   auto& energies = std::get<1>(evt_info.kinematics); 
 
   // fill angle histograms
-  getHisto2D("3_hit_angles", evt_info.type, selected)->Fill(evt_info.angles_3d.second + evt_info.angles_3d.first,
-                                          evt_info.angles_3d.second - evt_info.angles_3d.first);
+  getHisto2D("3_hit_angles", type, selected)->Fill(evt_info.angles_3d.second + evt_info.angles_3d.first,
+                                                            evt_info.angles_3d.second - evt_info.angles_3d.first);
 
   if(evt_info.event_odd){
-    getHisto2D("th2_th1", evt_info.type, selected)->Fill(angles[0], angles[1]);
-    getHisto2D("th3_th2", evt_info.type, selected)->Fill(angles[1], angles[2]);
-    getHisto2D("th3_th1", evt_info.type, selected)->Fill(angles[0], angles[2]);
+    getHisto2D("th2_th1", type, selected)->Fill(angles[0], angles[1]);
+    getHisto2D("th3_th2", type, selected)->Fill(angles[1], angles[2]);
+    getHisto2D("th3_th1", type, selected)->Fill(angles[0], angles[2]);
   }else{
-    getHisto2D("th2_th1", evt_info.type, selected)->Fill(angles[1], angles[0]);
-    getHisto2D("th3_th2", evt_info.type, selected)->Fill(angles[2], angles[1]);
-    getHisto2D("th3_th1", evt_info.type, selected)->Fill(angles[2], angles[0]);
+    getHisto2D("th2_th1", type, selected)->Fill(angles[1], angles[0]);
+    getHisto2D("th3_th2", type, selected)->Fill(angles[2], angles[1]);
+    getHisto2D("th3_th1", type, selected)->Fill(angles[2], angles[0]);
   }
     
   // fill energy histograms
   if(evt_info.event_odd){
-    getHisto2D("E2_E1", evt_info.type, selected)->Fill(energies[0], energies[1]);
-    getHisto2D("E3_E2", evt_info.type, selected)->Fill(energies[1], energies[2]);
-    getHisto2D("E3_E1", evt_info.type, selected)->Fill(energies[0], energies[2]);
+    getHisto2D("E2_E1", type, selected)->Fill(energies[0], energies[1]);
+    getHisto2D("E3_E2", type, selected)->Fill(energies[1], energies[2]);
+    getHisto2D("E3_E1", type, selected)->Fill(energies[0], energies[2]);
   }else{
-    getHisto2D("E2_E1", evt_info.type, selected)->Fill(energies[1], energies[0]);
-    getHisto2D("E3_E2", evt_info.type, selected)->Fill(energies[2], energies[1]);
-    getHisto2D("E3_E1", evt_info.type, selected)->Fill(energies[2], energies[0]);
+    getHisto2D("E2_E1", type, selected)->Fill(energies[1], energies[0]);
+    getHisto2D("E3_E2", type, selected)->Fill(energies[2], energies[1]);
+    getHisto2D("E3_E1", type, selected)->Fill(energies[2], energies[0]);
   }
   
   // lifetime
   if(event.hasPrompt()){
-    getHisto1D("lifetime", evt_info.type, selected)->Fill(event.getLifeTime() / 1000.);
+    getHisto1D("lifetime", type, selected)->Fill(event.getLifeTime() / 1000.);
   }
 
   // annihilation point location
-  getHisto2D("anh_XZ", evt_info.type, selected)->Fill(event.getAnnihilationPoint().Z(), event.getAnnihilationPoint().X());
+  getHisto2D("anh_XZ", type, selected)->Fill(event.getAnnihilationPoint().Z(), event.getAnnihilationPoint().X());
 
   if( fabs(event.getAnnihilationPoint().Z()) > 4.0 ){
-    getHisto2D("anh_XY", evt_info.type, selected)->Fill(event.getAnnihilationPoint().Y(), event.getAnnihilationPoint().X());
+    getHisto2D("anh_XY", type, selected)->Fill(event.getAnnihilationPoint().Y(), event.getAnnihilationPoint().X());
 
     double r = event.getAnnihilationPoint().Perp();
-    getHisto1D("anh_R", evt_info.type, selected)->Fill(r);
-    getHisto1D("anh_R_jacobian", evt_info.type, selected)->Fill(r, 1./r);
+    getHisto1D("anh_R", type, selected)->Fill(r);
+    getHisto1D("anh_R_jacobian", type, selected)->Fill(r, 1./r);
   }
       
   // operators
-  getHisto1D("Sk1", evt_info.type, selected)->Fill(evt_info.operators.at(0));
-  getHisto1D("Sk1xk2", evt_info.type, selected)->Fill(evt_info.operators.at(1));
-  getHisto1D("Sk1.Sk1xk2", evt_info.type, selected)->Fill(evt_info.operators.at(2));
+  getHisto1D("Sk1", type, selected)->Fill(evt_info.operators.at(0));
+  getHisto1D("Sk1xk2", type, selected)->Fill(evt_info.operators.at(1));
+  getHisto1D("Sk1.Sk1xk2", type, selected)->Fill(evt_info.operators.at(2));
 
-  // scatter tests
-  getHisto2D("dvts", evt_info.type, selected)->Fill(evt_info.scatter_tests.at(0), evt_info.scatter_tests.at(1));
+  // operators' correlation
+  getHisto2D("Op.corr", type, selected)->Fill(evt_info.operators.at(1),
+                                              evt_info.operators.at(0)
+                                              );
   
+  // scatter tests
+  getHisto2D("dvts", type, selected)->Fill(evt_info.scatter_tests.at(0), evt_info.scatter_tests.at(1));
+
+  // also fill total "BCG" histos
+  if( type != SIGNAL && type != POSSIBLE_SIGNAL && type != ALL_BCG ){
+    fillHistos(event, evt_info, ALL_BCG, selected);
+  }
+
 }
 
+MCEventType OPSCleaner::classifyEvent(const JPetTimeWindowMC* time_window_mc,
+                                      const JPetEvent& event){
 
+  MCEventType event_type = OTHER;
+
+  std::array<JPetMCHit, 3> mc_hits;
+  for(int k=0; k<3; ++k){
+    mc_hits[k] = time_window_mc->getMCHit<JPetMCHit>(event.getHits().at(k).getMCindex());        
+  }
+      
+  if( mc_hits[0].getMCVtxIndex() == mc_hits[1].getMCVtxIndex() &&
+      mc_hits[0].getMCVtxIndex() == mc_hits[2].getMCVtxIndex() ){
+    // hits from same simulated event
+
+    bool triple = false;
+    bool pair = false;
+    for(int j=0; j<3; ++j){
+      for(int k=j+1; k<3; ++k){
+        if(mc_hits[j].getGenGammaMultiplicity() == mc_hits[k].getGenGammaMultiplicity()){
+          // there was a pair with the same multiplicity
+          pair = true;
+          int pair_mult = mc_hits[k].getGenGammaMultiplicity();
+          int single_mult = mc_hits[ 3 - j - k].getGenGammaMultiplicity();
+          getStatistics().getHisto1D("pair_mc_mult")->Fill( pair_mult );
+
+          if( single_mult == pair_mult ){
+            triple = true;
+            break;
+          }else{ // the third hit had a different multiplicity
+            getStatistics().getHisto2D("Mults_pair_single")->Fill(single_mult, pair_mult);
+
+            // cases B2B_SCAT, B2B_PROMPT
+            if(pair_mult == 2){ // there was a back-to-back event
+              if( single_mult = 1 ){
+                event_type = B2B_PROMPT;
+              }
+              if( single_mult >= 100 ){
+                event_type = B2B_SCAT;
+              }
+            }
+                
+          }
+              
+        }
+      }
+    }
+
+    // true if there was not even a single pair
+    getStatistics().getHisto1D("all_mults_different")->Fill(!pair);
+        
+    if(triple){ // three hits with the same MC multiplicity
+      getStatistics().getHisto1D("triple_mc_mult")->Fill(mc_hits[0].getGenGammaMultiplicity());
+
+      if(mc_hits[0].getGenGammaMultiplicity() == 3){
+        event_type = SIGNAL; // signal (3-photon) event!
+      }
+
+      if(mc_hits[0].getGenGammaMultiplicity() == 0){
+        event_type = POSSIBLE_SIGNAL; // signal (3-photon) event!
+      }
+    }
+    
+  }else{
+    // random coincidence
+    event_type = RANDOM;
+  }
+  
+  return event_type;
+}
 
 
