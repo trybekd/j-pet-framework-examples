@@ -42,6 +42,7 @@ public:
 
 protected:  
   double calculateTOTproportional(const JPetHit& hit) const;
+  bool isThreeHitCluster(const std::vector<JPetHit>& hits);
   void resetRow();
   
   bool fIsMC = false;  
@@ -50,10 +51,14 @@ protected:
   std::string fThresholdValuesKey = "Ntupler_ThresholdValues_std::vector<int>";
   std::vector<int> fThresholdValues;
 
+  double kEventTimeWindow = 5000.0; //ps
+  const std::string fEventTimeParamKey = "Ntupler_FineEventTime_float";
+  
   TFile* fOutFile;
   TTree* fOutTree;
   std::string fOutFileName;
-
+  std::string fOutFilePath;
+  
   // ntuple components
   std::vector<double> fHitTimes;
   std::vector<TVector3> fHitPos;

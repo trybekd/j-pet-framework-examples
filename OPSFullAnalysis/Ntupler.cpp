@@ -44,12 +44,25 @@ bool Ntupler::init()
     WARNING("TOT values were not provided by the user!");
   }
 
+  if (isOptionSet(fParams.getOptions(), fEventTimeParamKey)){
+    kEventTimeWindow = getOptionAsFloat(fParams.getOptions(), fEventTimeParamKey);
+  }else{
+    ERROR("Fine time window width not provided by the user!");
+    return false;
+  }
+  
   if(isOptionSet(fParams.getOptions(), "file_std::vector<std::string>")){
     fOutFileName = getOptionAsVectorOfStrings(fParams.getOptions(), "file_std::vector<std::string>").front();    
   }
+
+  if(isOptionSet(fParams.getOptions(), "outputPath_std::string")){
+    fOutFilePath = getOptionAsString(fParams.getOptions(), "outputPath_std::string");    
+  }
   
-  // initialize output tree
-  fOutFileName.append(".root");
+  // initialize output file and tree
+  size_t filename_pos = fOutFileName.find("dabc");
+  fOutFileName.replace(0, filename_pos-1, fOutFilePath);
+  fOutFileName.replace(fOutFileName.find("pre.evt.root"), std::string::npos, "ntu.root");
   fOutFile = new TFile(fOutFileName.c_str(), "RECREATE");
   fOutTree = new TTree("T", "o-Ps event candidates");
   
@@ -94,7 +107,10 @@ bool Ntupler::exec()
         fHitTOTsProportional.push_back(tot_proportional);
       }
 
-      fOutTree->Fill();
+      // only save the event if there was a cluster of 3+ hits in the fine time window
+      if (isThreeHitCluster(hits)) {
+        fOutTree->Fill();
+      }
       resetRow();
     }
     
@@ -147,6 +163,38 @@ double Ntupler::calculateTOTproportional(const JPetHit& hit) const {
 
   
   return tot;
+}
+
+bool Ntupler::isThreeHitCluster(const std::vector<JPetHit>& hits)
+{
+  vector<JPetEvent> newEventVec;
+  
+  int s = 0;
+  int n_hits = hits.size();
+  int cluster_size = 0;
+  
+  while ( s < n_hits ) {
+    
+    const JPetHit& startHit = hits[s];
+    cluster_size = 1;
+    
+    int k = 1;
+    while ( s + k < n_hits ) {
+      const JPetHit& currentHit = hits[s + k];
+      if (fabs(currentHit.getTime() - startHit.getTime()) < kEventTimeWindow) {
+        cluster_size++;
+        k++;
+      } else {
+        break;
+      }
+    }
+    s += k;  
+  }
+
+  if (cluster_size >= 3) {
+    return true;
+  }
+  return false;
 }
 
 void Ntupler::resetRow() {
