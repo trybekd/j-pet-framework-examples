@@ -24,6 +24,7 @@
 #include "OPSReconstructor.h"
 #include "OPSAnalyzer.h"
 #include "OPSCleaner.h"
+#include "Ntupler.h"
 
 using namespace std;
 
@@ -43,6 +44,8 @@ int main(int argc, const char* argv[])
   manager.registerTask<OPSAnalyzer>("OPSAnalyzer");
   manager.registerTask<OPSCleaner>("OPSCleaner");
 
+  manager.registerTask<Ntupler>("Ntupler");
+  
   /*
   manager.useTask("TimeWindowCreator", "hld", "tslot.calib");
   manager.useTask("SignalFinder", "tslot.calib", "raw.sig");
@@ -50,13 +53,15 @@ int main(int argc, const char* argv[])
   manager.useTask("HitFinder", "phys.sig", "hits");
   */
   
-  manager.useTask("TOTPlotter", "hits", "hits.plot");
-  manager.useTask("EventFinder", "hits.plot", "pre.evt");
-  manager.useTask("OPSCandidateFinder", "pre.evt", "ops.cand.evt");
+  // manager.useTask("TOTPlotter", "hits", "hits.plot");
+  // manager.useTask("EventFinder", "hits.plot", "pre.evt");
+  // manager.useTask("OPSCandidateFinder", "pre.evt", "ops.cand.evt");
 
-  manager.useTask("OPSReconstructor", "ops.cand.evt", "ops.rec.evt");
-  manager.useTask("OPSAnalyzer", "ops.rec.evt", "ops.ana.evt");
-  manager.useTask("OPSCleaner", "ops.ana.evt", "ops.cln.evt");
+  // manager.useTask("OPSReconstructor", "ops.cand.evt", "ops.rec.evt");
+  // manager.useTask("OPSAnalyzer", "ops.rec.evt", "ops.ana.evt");
+  // manager.useTask("OPSCleaner", "ops.ana.evt", "ops.cln.evt");
+
+  manager.useTask("Ntupler", "pre.evt", "void");
   
   manager.run(argc, argv);
 }
