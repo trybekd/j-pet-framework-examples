@@ -51,8 +51,8 @@ bool Ntupler::init()
     return false;
   }
   
-  if(isOptionSet(fParams.getOptions(), "file_std::vector<std::string>")){
-    fOutFileName = getOptionAsVectorOfStrings(fParams.getOptions(), "file_std::vector<std::string>").front();    
+  if(isOptionSet(fParams.getOptions(), "inputFile_std::string")){
+    fOutFileName = getOptionAsString(fParams.getOptions(), "inputFile_std::string");    
   }
 
   if(isOptionSet(fParams.getOptions(), "outputPath_std::string")){
@@ -60,9 +60,20 @@ bool Ntupler::init()
   }
   
   // initialize output file and tree
-  size_t filename_pos = fOutFileName.find("dabc");
-  fOutFileName.replace(0, filename_pos-1, fOutFilePath);
-  fOutFileName.replace(fOutFileName.find("pre.evt.root"), std::string::npos, "ntu.root");
+  if(fOutFileName.find("pre.evt.root") != std::string::npos){
+    fOutFileName.replace(fOutFileName.find("pre.evt.root"), std::string::npos, "ntu.root");    
+  }
+
+  // handle special case if direct processing is used
+  if(fOutFileName.find("hld.root") != std::string::npos){
+    fOutFileName.replace(fOutFileName.find("hld.root"), std::string::npos, "ntu.root");    
+  }
+
+  if (!fOutFilePath.empty()) {
+    size_t filename_pos = fOutFileName.find("dabc");
+    fOutFileName.replace(0, filename_pos - 1, fOutFilePath);
+  }
+
   fOutFile = new TFile(fOutFileName.c_str(), "RECREATE");
   fOutTree = new TTree("T", "o-Ps event candidates");
   
