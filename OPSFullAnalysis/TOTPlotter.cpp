@@ -136,19 +136,26 @@ bool TOTPlotter::init()
     INFO(Form("Loaded TOT cut values: (%lf, %lf) and (%lf, %lf).",
               fTOTcuts[0], fTOTcuts[1], fTOTcuts[2], fTOTcuts[3]));
   }
-  
-  for(auto key : fEdepMCcutKeys){
-    if (isOptionSet(fParams.getOptions(), key)){
-      fMCEdepCuts.push_back(getOptionAsFloat(fParams.getOptions(), key));
-    }else{
-      ERROR(Form("MC Edep cut value (%s) not provided by the user!", key.c_str()));
+
+  const JPetTimeWindowMC* time_window_mc = nullptr;
+  if (time_window_mc = dynamic_cast<const JPetTimeWindowMC*>(fEvent)) {
+    fIsMC = true;
+  }
+  if(fIsMC){
+    for(auto key : fEdepMCcutKeys){
+      if (isOptionSet(fParams.getOptions(), key)){
+	fMCEdepCuts.push_back(getOptionAsFloat(fParams.getOptions(), key));
+      }else{
+	ERROR(Form("MC Edep cut value (%s) not provided by the user!", key.c_str()));
+      }
     }
-  }
-  if(fMCEdepCuts.size() == fEdepMCcutKeys.size()){
-    INFO(Form("Loaded Edep cut values for MC: (%lf, %lf) and (%lf, %lf).",
-              fMCEdepCuts[0], fMCEdepCuts[1], fMCEdepCuts[2], fMCEdepCuts[3]));  
-  }
+  
+    if(fMCEdepCuts.size() == fEdepMCcutKeys.size()){
+      INFO(Form("Loaded Edep cut values for MC: (%lf, %lf) and (%lf, %lf).",
+		fMCEdepCuts[0], fMCEdepCuts[1], fMCEdepCuts[2], fMCEdepCuts[3]));  
+    }
     
+  }
   return true;
 }
 
@@ -168,55 +175,66 @@ bool TOTPlotter::exec()
   
   for(uint i=0;i<n;++i){
 
-    const JPetHit & hit =  dynamic_cast<const JPetHit&>(time_window->operator[](i));
+    //    const JPetHit & hit =  dynamic_cast<const JPetHit&>(time_window->operator[](i));
+    const JPetEvent & event =  dynamic_cast<const JPetEvent&>(time_window->operator[](i));
+
+    const auto & hits = event.getHits();
+
+    int s = 0;
+    int nhits = event.getHits().size();
     
-    JPetHit new_hit;
-    if(!fIsMC){
-      new_hit = calculateTOT(hit);
-    }else{
-      new_hit = hit;
-      new_hit.setRecoFlag(JPetHit::Good);
-    }
+    while ( s < nhits ) {
 
-    // count annihilation and prompt photon candidates
-    HitCandidateType type = identifyHitType(new_hit, fTOTcuts, fIsMC, fMCEdepCuts);
-    if(type==HitCandidateType::Annihilation){
-      n_anh_hits++;
-    }else if(type==HitCandidateType::Prompt){
-      n_prompt_hits++;
-    }
-    
-    if(fIsMC){ // fill MC histograms of deposited energy
+      JPetHit new_hit;
+      JPetHit hit = hits[s];
       
-      auto& mc_hit = time_window_mc->getMCHit<JPetMCHit>(new_hit.getMCindex());
-      int hit_type = mc_hit.getGenGammaMultiplicity();
-      std::string histo_name = "mc_edep_unknown";
-      if(hit_type == 1){
-        histo_name = "mc_edep_prompt";
-      }else if(hit_type == 2){
-        histo_name = "mc_edep_2g";
-      }else if(hit_type == 3){
-        histo_name = "mc_edep_3g";
-      }else if(hit_type >= 100){
-        histo_name = "mc_edep_scat";
-      }
-
-      getStatistics().getHisto1D(histo_name.c_str())->Fill(new_hit.getEnergy());
-      
-    }else{ // fill TOT histograms for data
-
-      double tot = new_hit.getEnergy();
-
-      if(new_hit.getRecoFlag() == JPetHit::Good){
-        getStatistics().getHisto1D(Form("tot_strip_good_%d", new_hit.getBarrelSlot().getID()))->Fill(tot);
+      if(!fIsMC){
+	new_hit = calculateTOT(hit);
       }else{
-        getStatistics().getHisto1D(Form("tot_strip_corrupted_%d", new_hit.getBarrelSlot().getID()))->Fill(tot);
+	new_hit = hit;
+	new_hit.setRecoFlag(JPetHit::Good);
       }
-    }
-    
-    fOutputEvents->add<JPetHit>(new_hit);
-  }
 
+      // count annihilation and prompt photon candidates
+      HitCandidateType type = identifyHitType(new_hit, fTOTcuts, fIsMC, fMCEdepCuts);
+      if(type==HitCandidateType::Annihilation){
+	n_anh_hits++;
+      }else if(type==HitCandidateType::Prompt){
+	n_prompt_hits++;
+      }
+    
+      if(fIsMC){ // fill MC histograms of deposited energy
+      
+	auto& mc_hit = time_window_mc->getMCHit<JPetMCHit>(new_hit.getMCindex());
+	int hit_type = mc_hit.getGenGammaMultiplicity();
+	std::string histo_name = "mc_edep_unknown";
+	if(hit_type == 1){
+	  histo_name = "mc_edep_prompt";
+	}else if(hit_type == 2){
+	  histo_name = "mc_edep_2g";
+	}else if(hit_type == 3){
+	  histo_name = "mc_edep_3g";
+	}else if(hit_type >= 100){
+	  histo_name = "mc_edep_scat";
+	}
+
+	getStatistics().getHisto1D(histo_name.c_str())->Fill(new_hit.getEnergy());
+      
+      }else{ // fill TOT histograms for data
+
+	double tot = new_hit.getEnergy();
+
+	if(new_hit.getRecoFlag() == JPetHit::Good){
+	  getStatistics().getHisto1D(Form("tot_strip_good_%d", new_hit.getBarrelSlot().getID()))->Fill(tot);
+	}else{
+	  getStatistics().getHisto1D(Form("tot_strip_corrupted_%d", new_hit.getBarrelSlot().getID()))->Fill(tot);
+	}
+      }
+      s++;  
+      fOutputEvents->add<JPetHit>(new_hit);
+    }
+  }
+  
   getStatistics().getHisto1D("n_prompt_in_tw")->Fill(n_prompt_hits);
   getStatistics().getHisto1D("n_anh_in_tw")->Fill(n_anh_hits);
 
