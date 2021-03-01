@@ -17,6 +17,7 @@
 #include <JPetWriter/JPetWriter.h>
 #include "EventCategorizerTools.h"
 #include "EventCategorizer.h"
+#include <JPetMCHit/JPetMCHit.h>
 #include <iostream>
 
 using namespace jpet_options_tools;
@@ -32,6 +33,7 @@ EventCategorizer::EventCategorizer(const char* name): JPetUserTask(name) {
   pTree22->Branch("z",&fPosZ);
   pTree22->Branch("energy",&fEnergy);
   pTree22->Branch("time",&fTime);
+  pTree22->Branch("hitType",&fHitType);
 }
 
 EventCategorizer::~EventCategorizer() {
@@ -111,6 +113,7 @@ bool EventCategorizer::exec()
     fNumberOfHits = 0;
   std::cout << "exec" << std::endl;
     if (auto timeWindow = dynamic_cast<const JPetTimeWindow* const>(fEvent)) {
+    auto timeWindowMC = dynamic_cast<const JPetTimeWindowMC* const>(fEvent); 
     vector<JPetEvent> events;
     for (uint i = 0; i < timeWindow->getNumberOfEvents(); i++) {
         
@@ -136,7 +139,7 @@ bool EventCategorizer::exec()
       if(is3Gamma) newEvent.addEventType(JPetEventType::k3Gamma);
       if(isPrompt) newEvent.addEventType(JPetEventType::kPrompt);
       if(isScattered) newEvent.addEventType(JPetEventType::kScattered);
-      
+
       fNumberOfHits = event.getHits().size();
       fEnergy.clear();
       //fEnergy.resize(event.getHits().size());
@@ -149,11 +152,13 @@ bool EventCategorizer::exec()
       fPosZ.clear();
       //fPosZ.resize(event.getHits().size());
       for(auto hit : event.getHits()){
-        fPosX.push_back(hit.getPosX()); 
-        fPosY.push_back(hit.getPosY()); 
+        fPosX.push_back(hit.getPosX());
+        fPosY.push_back(hit.getPosY());
         fPosZ.push_back(hit.getPosZ()); 
         fEnergy.push_back(hit.getEnergy()); 
         fTime.push_back(hit.getTime()); 
+        auto mcHit = timeWindowMC->getMCHit<JPetMCHit>(hit.getMCindex());
+        fHitType = mcHit.getGenGammaMultiplicity();
       }
 
       pTree22->Fill();

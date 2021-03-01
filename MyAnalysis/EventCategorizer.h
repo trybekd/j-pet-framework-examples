@@ -72,6 +72,7 @@ protected:
         std::vector<float> fPosZ;
         std::vector<float> fEnergy;
         std::vector<float> fTime;
+        unsigned int fHitType = 0;
         //std::unique_ptr<TFile> fOutFile;
 };
 #endif /* !EVENTCATEGORIZER_H */
