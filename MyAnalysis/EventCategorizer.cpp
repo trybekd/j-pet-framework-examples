@@ -23,6 +23,7 @@ using namespace jpet_options_tools;
 using namespace std;
 
 EventCategorizer::EventCategorizer(const char* name): JPetUserTask(name) {
+  fOutFile = std::make_unique<TFile>("test.root","RECREATE");
   pTree22 = new TTree("FlatTree","flat tree");
   pTree22->Branch("timeWindowNumber",&fTimeWindowNumber,"timeWindowNumber/I");
   pTree22->Branch("eventNumber",&fEventNumber,"EventNumber/I");
@@ -109,7 +110,7 @@ bool EventCategorizer::exec()
 {
     fEventNumber = 0;
     fNumberOfHits = 0;
-  std::cout << "exec" << std::endl;
+  
     if (auto timeWindow = dynamic_cast<const JPetTimeWindow* const>(fEvent)) {
     vector<JPetEvent> events;
     for (uint i = 0; i < timeWindow->getNumberOfEvents(); i++) {
@@ -179,14 +180,14 @@ bool EventCategorizer::terminate()
   std::cout << "blablaaaa" << std::endl;
   INFO("Event categorization completed.");
   if(!pTree22) std::cout << "wtf??" << std::endl;
-  TFile* fOutFile = new TFile("test.root","RECREATE");
+  
   std::cout << "blablaaaa2" << std::endl;
   fOutFile->cd(); 
   pTree22->Write();
   //pTree22->Print();
   fOutFile->Write();
-  fOutFile->Close();
-  delete fOutFile;
+  //fOutFile->Close();
+  //delete fOutFile;
   return true;
 }
 
