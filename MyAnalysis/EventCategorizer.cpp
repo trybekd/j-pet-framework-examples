@@ -24,10 +24,10 @@ using namespace jpet_options_tools;
 using namespace std;
 
 EventCategorizer::EventCategorizer(const char* name): JPetUserTask(name) {
-  fOutFile = std::make_unique<TFile>("test.root","RECREATE");
+  fOutFile = std::make_unique<TFile>("test_kwritedelete.root","RECREATE");
   pTree22 = new TTree("FlatTree","flat tree");
   pTree22->Branch("timeWindowNumber",&fTimeWindowNumber,"timeWindowNumber/I");
-  pTree22->Branch("eventNumber",&fEventNumber,"EventNumber/I");
+  pTree22->Branch("eventNumber",&fEventNumber,"eventNumber/I");
   pTree22->Branch("numberOfHits",&fNumberOfHits,"numberOfHits/I");
   pTree22->Branch("x",&fPosX);
   pTree22->Branch("y",&fPosY);
@@ -39,6 +39,11 @@ EventCategorizer::EventCategorizer(const char* name): JPetUserTask(name) {
 
 EventCategorizer::~EventCategorizer() {
   std::cout << "in destructor" << std::endl;
+  
+  if(fOutFile){
+    fOutFile->Delete("FlatTree;1");
+  }
+
   if (pTree22) {
     
     //delete pTree22;
@@ -152,6 +157,7 @@ bool EventCategorizer::exec()
       //fPosY.resize(event.getHits().size());
       fPosZ.clear();
       //fPosZ.resize(event.getHits().size());
+      fHitType.clear();
       for(auto hit : event.getHits()){
         fPosX.push_back(hit.getPosX());
         fPosY.push_back(hit.getPosY());
@@ -159,7 +165,7 @@ bool EventCategorizer::exec()
         fEnergy.push_back(hit.getEnergy()); 
         fTime.push_back(hit.getTime()); 
         auto mcHit = timeWindowMC->getMCHit<JPetMCHit>(hit.getMCindex());
-        fHitType = mcHit.getGenGammaMultiplicity();
+        fHitType.push_back(mcHit.getGenGammaMultiplicity());
       }
 
       pTree22->Fill();
@@ -190,7 +196,8 @@ bool EventCategorizer::terminate()
   fOutFile->cd(); 
   pTree22->Write();
   //pTree22->Print();
-  fOutFile->Write();
+  fOutFile->Write("",TObject::kWriteDelete);
+  
   //fOutFile->Close();
   //delete fOutFile;
   return true;
