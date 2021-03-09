@@ -35,6 +35,7 @@ set(use_modules_from ../LargeBarrelAnalysis)
 
 set(HEADERS
   ${use_modules_from}/EventCategorizerTools.h
+  ${use_modules_from}/EventCategorizer.h
   ${use_modules_from}/EventFinder.h
   ${use_modules_from}/HitFinder.h
   ${use_modules_from}/HitFinderTools.h
@@ -59,6 +60,7 @@ set(HEADERS
 
 set(SOURCES
   ${use_modules_from}/EventCategorizerTools.cpp
+  ${use_modules_from}/EventCategorizer.cpp
   ${use_modules_from}/EventFinder.cpp
   ${use_modules_from}/HitFinder.cpp
   ${use_modules_from}/HitFinderTools.cpp
