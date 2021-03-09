@@ -35,7 +35,7 @@ JPetOpsEvent::JPetOpsEvent(const std::vector<JPetHit>& hits, JPetEventType event
 
 void JPetOpsEvent::Clear(Option_t*)
 {
-  fType = kUnknown;
+  fType = JPetEventType::kUnknown;
   fHits.clear();
 }
 
