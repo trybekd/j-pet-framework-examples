@@ -156,9 +156,7 @@ bool EventCategorizerTools::checkForScatter(
 
       if (fabs(scattTOF - timeDiff) < scatterTOFTimeDiff) {
         if (saveHistos) {
-	  stats.fillHistogram("Annih_TOT_cut", calculateTOT(scatterHit, TOTCalculationType::kSimplified));
-	  stats.fillHistogram("TOT_allHits", calculateTOT(primaryHit, TOTCalculationType::kSimplified));
-	  stats.fillHistogram("TOT_allHits", calculateTOT(scatterHit, TOTCalculationType::kSimplified));
+	  stats.fillHistogram("Scatter_TOT_cut", calculateTOT(scatterHit, TOTCalculationType::kSimplified));
 	  stats.fillHistogram("ScatterAngle_PrimaryTOT", scattAngle, calculateTOT(primaryHit, TOTCalculationType::kSimplified));
           stats.fillHistogram("ScatterAngle_ScatterTOT", scattAngle, calculateTOT(scatterHit, TOTCalculationType::kSimplified));
         }

@@ -88,7 +88,13 @@ bool EventCategorizer::exec()
     vector<JPetEvent> events;
     for (uint i = 0; i < timeWindow->getNumberOfEvents(); i++) {
       const auto& event = dynamic_cast<const JPetEvent&>(timeWindow->operator[](i));
-
+      getStatistics().fillHistogram("multiplicity", event.getHits().size());
+      //check TOT of all hits
+      if(fSaveControlHistos){
+        for(auto hit : event.getHits()){
+	  getStatistics().fillHistogram("TOT_allHits", EventCategorizerTools::calculateTOT(hit, EventCategorizerTools::TOTCalculationType::kSimplified));
+	}
+      }
       // Check types of current event
       bool is2Gamma = EventCategorizerTools::checkFor2Gamma(
         event, getStatistics(), fSaveControlHistos, fB2BSlotThetaDiff, fMaxTimeDiff
@@ -108,7 +114,28 @@ bool EventCategorizer::exec()
       if(is3Gamma) newEvent.addEventType(JPetEventType::k3Gamma);
       if(isPrompt) newEvent.addEventType(JPetEventType::kPrompt);
       if(isScattered) newEvent.addEventType(JPetEventType::kScattered);
-
+      
+            
+      // if(is2Gamma){
+      // 	std::cout << "added Type: " << (int)JPetEventType::k2Gamma << std::endl; 
+      // 	std::cout << "event Type: " << (int)newEvent.getEventType() << std::endl;
+      // }
+      // else if(is3Gamma){
+      // 	std::cout << "added Type: " << (int)JPetEventType::k3Gamma << std::endl; 
+      // 	std::cout << "event Type: " << (int)newEvent.getEventType() << std::endl;
+      // }
+      // else if(isPrompt){
+      // 	std::cout << "added Type: " << (int)JPetEventType::kPrompt << std::endl; 
+      // 	std::cout << "event Type: " << (int)newEvent.getEventType() << std::endl;
+      // }
+      // else if(isScattered){
+      // 	std::cout << "added Type: " << (int)JPetEventType::kScattered << std::endl; 
+      // 	std::cout << "event Type: " << (int)newEvent.getEventType() << std::endl;
+      // }
+      // else{
+      // 	std::cout << "event Type: " << (int)newEvent.getEventType() << std::endl;
+      // }
+      
       if(fSaveControlHistos){
         for(auto hit : event.getHits()){
           getStatistics().fillHistogram("All_XYpos", hit.getPosX(), hit.getPosY());
@@ -193,7 +220,7 @@ void EventCategorizer::initialiseHistograms(){
 
   // Histograms for 3Gamama category
   getStatistics().createHistogramWithAxes(
-    new TH2D("3Gamma_Angles", "Relative angles - transformed", 250, -0.5, 249.5, 200, -0.5, 199.5),
+    new TH2D("3Gamma_Angles", "Relative angles - transformed", 250, -0.5, 249.5, 250, -0.5, 199.5),
     "Relative angle 1-2", "Relative angle 2-3"
   );
 
@@ -221,14 +248,19 @@ void EventCategorizer::initialiseHistograms(){
     new TH1D("Deex_TOT_cut", "TOT of all hits with deex cut (30,50) ns", 200, 24950.0, 54950.0),
     "TOT [ps]", "Number of Hits"
   );
-  // Histograms for annihilation
+  //multiplicity
   getStatistics().createHistogramWithAxes(
-    new TH1D("Annih_TOT_cut", "TOT of all hits with annih cut (30,50) ns", 200, 0.0, 24950.0),
+    new TH1D("multiplicity", "hit multiplicity", 100, -0.5, 99.5),
     "TOT [ps]", "Number of Hits"
   );
+  
   //histograms for TOT check
   getStatistics().createHistogramWithAxes(
     new TH1D("TOT_allHits", "TOT of all hits", 250, 0.0, 100000.0),
+    "TOT [ps]", "Number of Hits"
+  );
+    getStatistics().createHistogramWithAxes(
+    new TH1D("Scatter_TOT_cut", "TOT of all hits selected scattered", 200, 0.0, 24950.0),
     "TOT [ps]", "Number of Hits"
   );
 }
