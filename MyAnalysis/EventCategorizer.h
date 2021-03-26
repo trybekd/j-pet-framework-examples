@@ -59,7 +59,7 @@ protected:
 	double fDeexTOTCutMin = 30000.0;
 	double fDeexTOTCutMax = 50000.0;
 	double fMaxTimeDiff = 1000.;
-	bool fSaveControlHistos = true;
+	bool fSaveControlHistos = false;
     std::string fTOTCalculationType = "";
 	void initialiseHistograms();
         TTree* pTree22 = nullptr;
@@ -74,5 +74,7 @@ protected:
         std::vector<float> fTime;
 	std::vector<unsigned int> fHitType;
         std::unique_ptr<TFile> fOutFile;
+	std::string fInName;
+	jpet_options_tools::OptsStrAny  opts;
 };
 #endif /* !EVENTCATEGORIZER_H */

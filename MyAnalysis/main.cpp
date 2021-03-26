@@ -25,7 +25,7 @@ using namespace std;
 int main(int argc, const char* argv[]) {
   try {
     JPetManager& manager = JPetManager::getManager();
-
+    
     manager.registerTask<TimeWindowCreator>("TimeWindowCreator");
     manager.registerTask<SignalFinder>("SignalFinder");
     manager.registerTask<SignalTransformer>("SignalTransformer");

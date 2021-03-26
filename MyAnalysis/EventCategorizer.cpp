@@ -19,12 +19,60 @@
 #include "EventCategorizer.h"
 #include <JPetMCHit/JPetMCHit.h>
 #include <iostream>
+#include <TSystem.h>
+#include <cstdlib>
+#include <ctime>
 
 using namespace jpet_options_tools;
 using namespace std;
 
-EventCategorizer::EventCategorizer(const char* name): JPetUserTask(name) {
-  fOutFile = std::make_unique<TFile>("test_kwritedelete.root","RECREATE");
+EventCategorizer::EventCategorizer(const char* name): JPetUserTask(name){}
+
+EventCategorizer::~EventCategorizer() {
+  std::cout << "in destructor" << std::endl;
+  
+  if(fOutFile){
+    //fOutFile->Delete("FlatTree;1");
+  }
+
+  if (pTree22) {
+    
+    //delete pTree22;
+    //pTree22 = nullptr;
+  }
+}
+
+bool EventCategorizer::init()
+{
+  //try to read input file
+  opts = fParams.getOptions();
+  fInName = jpet_options_tools::getInputFile(opts);
+  
+  // srand((unsigned) time(0));
+  // int randomNumber = rand();
+  // auto uniqueName = std::to_string(randomNumber);
+
+
+  std::string delimiter = "/";
+
+  size_t pos = 0;
+  std::string token;
+  while ((pos = fInName.find(delimiter)) != std::string::npos) {
+    token = fInName.substr(0, pos);
+    //    std::cout << token << std::endl;
+    fInName.erase(0, pos + delimiter.length());
+  }
+
+  std::string outname = "flatTree_"+fInName;
+  if(gSystem->AccessPathName(outname.c_str())){
+    std::cout << "file does not exist " << std::endl;
+    fOutFile = std::make_unique<TFile>(outname.c_str(),"CREATE");
+
+  } else {
+    std::cout << "file " << outname << " exists " << std::endl;
+    ERROR("File exist.");
+  }
+
   pTree22 = new TTree("FlatTree","flat tree");
   pTree22->Branch("timeWindowNumber",&fTimeWindowNumber,"timeWindowNumber/I");
   pTree22->Branch("eventNumber",&fEventNumber,"eventNumber/I");
@@ -35,25 +83,6 @@ EventCategorizer::EventCategorizer(const char* name): JPetUserTask(name) {
   pTree22->Branch("energy",&fEnergy);
   pTree22->Branch("time",&fTime);
   pTree22->Branch("hitType",&fHitType);
-}
-
-EventCategorizer::~EventCategorizer() {
-  std::cout << "in destructor" << std::endl;
-  
-  if(fOutFile){
-    fOutFile->Delete("FlatTree;1");
-  }
-
-  if (pTree22) {
-    
-    //delete pTree22;
-    //pTree22 = nullptr;
-  }
-  std::cout << "in destructor2" << std::endl;
-}
-
-bool EventCategorizer::init()
-{
   INFO("Event categorization started.");
   // Parameter for back to back categorization
   if (isOptionSet(fParams.getOptions(), kBack2BackSlotThetaDiffParamKey)){
@@ -115,6 +144,7 @@ bool EventCategorizer::init()
 
 bool EventCategorizer::exec()
 {
+
     fEventNumber = 0;
     fNumberOfHits = 0;
   
