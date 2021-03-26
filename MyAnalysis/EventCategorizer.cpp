@@ -44,6 +44,7 @@ EventCategorizer::~EventCategorizer() {
 
 bool EventCategorizer::init()
 {
+  //al below should be put into a function
   //try to read input file
   opts = fParams.getOptions();
   fInName = jpet_options_tools::getInputFile(opts);
