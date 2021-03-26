@@ -16,7 +16,9 @@
 #ifndef _JPET_SinogramType_H_
 #define _JPET_SinogramType_H_
 
-#ifndef __CINT__
+//#ifndef __CINT__
+//#error "CINT flag is defined" 
+#include <boost/version.hpp>
 #if BOOST_VERSION >= 106400
 #  include <boost/serialization/array_wrapper.hpp>
 #endif
@@ -25,7 +27,7 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
-#endif
+//#endif
 
 
 #include "JPetWriter/JPetWriter.h"
