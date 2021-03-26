@@ -89,6 +89,7 @@ bool EventCategorizer::exec()
     for (uint i = 0; i < timeWindow->getNumberOfEvents(); i++) {
       const auto& event = dynamic_cast<const JPetEvent&>(timeWindow->operator[](i));
       getStatistics().fillHistogram("multiplicity", event.getHits().size());
+      getStatistics().fillHistogram("All_events_TW",events.size());
       //check TOT of all hits
       if(fSaveControlHistos){
         for(auto hit : event.getHits()){
@@ -114,27 +115,6 @@ bool EventCategorizer::exec()
       if(is3Gamma) newEvent.addEventType(JPetEventType::k3Gamma);
       if(isPrompt) newEvent.addEventType(JPetEventType::kPrompt);
       if(isScattered) newEvent.addEventType(JPetEventType::kScattered);
-      
-            
-      // if(is2Gamma){
-      // 	std::cout << "added Type: " << (int)JPetEventType::k2Gamma << std::endl; 
-      // 	std::cout << "event Type: " << (int)newEvent.getEventType() << std::endl;
-      // }
-      // else if(is3Gamma){
-      // 	std::cout << "added Type: " << (int)JPetEventType::k3Gamma << std::endl; 
-      // 	std::cout << "event Type: " << (int)newEvent.getEventType() << std::endl;
-      // }
-      // else if(isPrompt){
-      // 	std::cout << "added Type: " << (int)JPetEventType::kPrompt << std::endl; 
-      // 	std::cout << "event Type: " << (int)newEvent.getEventType() << std::endl;
-      // }
-      // else if(isScattered){
-      // 	std::cout << "added Type: " << (int)JPetEventType::kScattered << std::endl; 
-      // 	std::cout << "event Type: " << (int)newEvent.getEventType() << std::endl;
-      // }
-      // else{
-      // 	std::cout << "event Type: " << (int)newEvent.getEventType() << std::endl;
-      // }
       
       if(fSaveControlHistos){
         for(auto hit : event.getHits()){
@@ -166,6 +146,10 @@ void EventCategorizer::initialiseHistograms(){
     new TH2D("All_XYpos", "Hit position XY", 240, -60.25, 59.75, 240, -60.25, 59.75),
     "Hit X position [cm]", "Hit Y position [cm]"
   );
+  getStatistics().createHistogramWithAxes(
+					  new TH1F("All_events_TW", "Nr. of events in TimeWindow", 200, -.5, 199.),
+					  "TimeWindow [ps]","Number of events" 
+					  );
 
   // Histograms for 2Gamma category
   getStatistics().createHistogramWithAxes(
