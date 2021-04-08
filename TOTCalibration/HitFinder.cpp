@@ -134,13 +134,17 @@ bool HitFinder::terminate()
 void HitFinder::saveHits(const std::vector<JPetHit>& hits)
 {
   auto sortedHits = JPetAnalysisTools::getHitsOrderedByTime(hits);
+  getStatistics().fillHistogram("mult_hits", sortedHits.size());
+  auto mult = sortedHits.size();
   for (const auto& hit : sortedHits) {
 if (fSaveControlHistos) {
-  std::cout << "multiplicity " << sortedHits.size() << std::endl;
+  
       auto tot = HitFinderTools::calculateTOT(hit, HitFinderTools::getTOTCalculationType(fTOTCalculationType));
       getStatistics().fillHistogram("TOT_all_hits", tot);
       //EPR TOT per scint                                                                                                                                                                             
       getStatistics().fillHistogram("tot_per_scin",
+			  tot, (float)(hit.getScintillator().getID()));
+      if(mult==1)getStatistics().fillHistogram("tot_per_scin_mult1",
 			  tot, (float)(hit.getScintillator().getID()));
       //end EPR 
       if(hit.getRecoFlag()==JPetHit::Good){
@@ -181,14 +185,24 @@ void HitFinder::initialiseHistograms(){
 
   getStatistics().createHistogramWithAxes(
     new TH2D("tot_per_scin", "Hit TOT per Scintillator ID",
-    250, -255., 99750.0, 192, 0.5, 192.5),
+    250, -255., 20000.0, 192, 0.5, 192.5),
     "TOT hit", "ID of Scintillator"
+  );
+  getStatistics().createHistogramWithAxes(
+    new TH2D("tot_per_scin_mult1", "Hit TOT per Scintillator ID multiplicity 1",
+    250, -255., 20000.0, 192, 0.5, 192.5),
+    "TOT hit with mult==1", "ID of Scintillator"
   );
 
   getStatistics().createHistogramWithAxes(
     new TH2D("hit_pos_per_scin", "Hit Position per Scintillator ID",
     200, -49.75, 50.25, 192, 0.5, 192.5),
     "Hit z position [cm]", "ID of Scintillator"
+  );
+  //multiplicity ordered hits
+    getStatistics().createHistogramWithAxes(
+    new TH1D("mult_hits", "multiplicity hits", 50, -.5, 49.5),
+    "multiplicity", "Number of Hits"
   );
 
   // TOT calculating for all hits and reco flags
