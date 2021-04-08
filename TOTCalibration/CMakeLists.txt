@@ -17,7 +17,7 @@ endif()
 
 ################################################################################
 ## Project name
-set(projectName LargeBarrelAnalysis)
+set(projectName TOTCalibration)
 
 ## Auxiliary files
 set(AUXILIARY_FILES

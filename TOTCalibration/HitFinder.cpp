@@ -136,8 +136,13 @@ void HitFinder::saveHits(const std::vector<JPetHit>& hits)
   auto sortedHits = JPetAnalysisTools::getHitsOrderedByTime(hits);
   for (const auto& hit : sortedHits) {
 if (fSaveControlHistos) {
+  std::cout << "multiplicity " << sortedHits.size() << std::endl;
       auto tot = HitFinderTools::calculateTOT(hit, HitFinderTools::getTOTCalculationType(fTOTCalculationType));
       getStatistics().fillHistogram("TOT_all_hits", tot);
+      //EPR TOT per scint                                                                                                                                                                             
+      stats.fillHistogram("tot_per_scin",
+			  tot, (float)(hit.getScintillator().getID()));
+      //end EPR 
       if(hit.getRecoFlag()==JPetHit::Good){
         getStatistics().fillHistogram("TOT_good_hits", tot);
       } else if(hit.getRecoFlag()==JPetHit::Corrupted){
@@ -172,6 +177,12 @@ void HitFinder::initialiseHistograms(){
     new TH2D("time_diff_per_scin", "Signals Time Difference per Scintillator ID",
     4 * fABTimeDiff / 10, -2 * fABTimeDiff, 2 * fABTimeDiff, 192, 0.5, 192.5),
     "A-B time difference", "ID of Scintillator"
+  );
+
+  getStatistics().createHistogramWithAxes(
+    new TH2D("tot_per_scin", "Hit TOT per Scintillator ID",
+    250, -255., 99750.0, 192, 0.5, 192.5),
+    "TOT hit", "ID of Scintillator"
   );
 
   getStatistics().createHistogramWithAxes(

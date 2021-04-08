@@ -213,7 +213,7 @@ JPetHit HitFinderTools::createHit(
         stats.fillHistogram("good_vs_bad_hits",1);
         stats.fillHistogram("time_diff_per_scin",
           hit.getTimeDiff(), (float)(hit.getScintillator().getID()));
-        stats.fillHistogram("hit_pos_per_scin",
+	stats.fillHistogram("hit_pos_per_scin",
           hit.getPosZ(), (float)(hit.getScintillator().getID()));
       }
   } else if (signalA.getRecoFlag() == JPetBaseSignal::Corrupted
