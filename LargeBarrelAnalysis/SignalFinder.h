@@ -16,9 +16,9 @@
 #ifndef SIGNALFINDER_H
 #define SIGNALFINDER_H
 
+#include "SignalFinderTools.h"
 #include <JPetRawSignal/JPetRawSignal.h>
 #include <JPetUserTask/JPetUserTask.h>
-#include "SignalFinderTools.h"
 #include <vector>
 
 class JPetWriter;
@@ -34,7 +34,7 @@ class JPetWriter;
  * Parameters for time window values used in tools can be specified in user options,
  * default are provided.
  */
-class SignalFinder: public JPetUserTask
+class SignalFinder : public JPetUserTask
 {
 public:
   explicit SignalFinder(const char* name);
