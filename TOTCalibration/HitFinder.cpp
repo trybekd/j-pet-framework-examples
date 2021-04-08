@@ -140,7 +140,7 @@ if (fSaveControlHistos) {
       auto tot = HitFinderTools::calculateTOT(hit, HitFinderTools::getTOTCalculationType(fTOTCalculationType));
       getStatistics().fillHistogram("TOT_all_hits", tot);
       //EPR TOT per scint                                                                                                                                                                             
-      stats.fillHistogram("tot_per_scin",
+      getStatistics().fillHistogram("tot_per_scin",
 			  tot, (float)(hit.getScintillator().getID()));
       //end EPR 
       if(hit.getRecoFlag()==JPetHit::Good){
