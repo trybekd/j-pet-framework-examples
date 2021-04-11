@@ -188,8 +188,6 @@ void SignalFinder::initialiseHistograms()
   auto minPMID = getParamBank().getPMs().begin()->first;
   auto maxPMID = getParamBank().getPMs().rbegin()->first;
 
-  // Histograms of time differences between thresholds in Raw Signals
-  // produced to determine channel offsets between THR1 and
   for (int i = 1; i <= kNumOfThresholds; ++i)
   {
     getStatistics().createHistogramWithAxes(new TH2D(Form("thr_tot_%d_pm", i), Form("TOT on THR%d per PM", i), maxPMID - minPMID + 1, minPMID - 0.5,
