@@ -144,8 +144,31 @@ if (fSaveControlHistos) {
       //EPR TOT per scint                                                                                                                                                                             
       getStatistics().fillHistogram("tot_per_scin",
 			  tot, (float)(hit.getScintillator().getID()));
-      if(mult==1)getStatistics().fillHistogram("tot_per_scin_mult1",
+      if(mult==1){
+	getStatistics().fillHistogram("TOT_all_hits_mult1", tot);
+	getStatistics().fillHistogram("tot_per_scin_mult1",
 			  tot, (float)(hit.getScintillator().getID()));
+      }
+      if(mult==2){
+	getStatistics().fillHistogram("TOT_all_hits_mult2", tot);
+	getStatistics().fillHistogram("tot_per_scin_mult2",
+			  tot, (float)(hit.getScintillator().getID()));
+      }
+      if(mult==3){
+	getStatistics().fillHistogram("TOT_all_hits_mult3", tot);
+	getStatistics().fillHistogram("tot_per_scin_mult3",
+			  tot, (float)(hit.getScintillator().getID()));
+      }
+      if(mult==4){
+	getStatistics().fillHistogram("TOT_all_hits_mult4", tot);
+	getStatistics().fillHistogram("tot_per_scin_mult4",
+			  tot, (float)(hit.getScintillator().getID()));
+      }
+      if(mult>4){
+	getStatistics().fillHistogram("TOT_all_hits_multgt4", tot);
+	getStatistics().fillHistogram("tot_per_scin_multgt4",
+			  tot, (float)(hit.getScintillator().getID()));
+      }
       //end EPR 
       if(hit.getRecoFlag()==JPetHit::Good){
         getStatistics().fillHistogram("TOT_good_hits", tot);
@@ -185,12 +208,32 @@ void HitFinder::initialiseHistograms(){
 
   getStatistics().createHistogramWithAxes(
     new TH2D("tot_per_scin", "Hit TOT per Scintillator ID",
-    250, -255., 20000.0, 192, 0.5, 192.5),
+    250, -255., 99750.0, 192, 0.5, 192.5),
     "TOT hit", "ID of Scintillator"
   );
   getStatistics().createHistogramWithAxes(
     new TH2D("tot_per_scin_mult1", "Hit TOT per Scintillator ID multiplicity 1",
-    250, -255., 20000.0, 192, 0.5, 192.5),
+    250, -255., 99750.0, 192, 0.5, 192.5),
+    "TOT hit with mult==1", "ID of Scintillator"
+  );
+  getStatistics().createHistogramWithAxes(
+    new TH2D("tot_per_scin_mult2", "Hit TOT per Scintillator ID multiplicity 1",
+    250, -255., 99750.0, 192, 0.5, 192.5),
+    "TOT hit with mult==1", "ID of Scintillator"
+  );
+  getStatistics().createHistogramWithAxes(
+    new TH2D("tot_per_scin_mult3", "Hit TOT per Scintillator ID multiplicity 1",
+    250, -255., 99750.0, 192, 0.5, 192.5),
+    "TOT hit with mult==1", "ID of Scintillator"
+  );
+  getStatistics().createHistogramWithAxes(
+    new TH2D("tot_per_scin_mult4", "Hit TOT per Scintillator ID multiplicity 1",
+    250, -255., 99750.0, 192, 0.5, 192.5),
+    "TOT hit with mult==1", "ID of Scintillator"
+  );
+  getStatistics().createHistogramWithAxes(
+    new TH2D("tot_per_scin_multgt4", "Hit TOT per Scintillator ID multiplicity 1",
+    250, -255., 99750.0, 192, 0.5, 192.5),
     "TOT hit with mult==1", "ID of Scintillator"
   );
 
@@ -210,6 +253,26 @@ void HitFinder::initialiseHistograms(){
     new TH1D("TOT_all_hits", "TOT of all hits", 200, -250.0, 99750.0),
     "Time over Threshold [ps]", "Number of Hits"
   );
+    getStatistics().createHistogramWithAxes(
+					    new TH1D("TOT_all_hits_mult1", "TOT of all hits", 200, -250.0, 99750.0),
+					    "Time over Threshold [ps]", "Number of Hits"
+					    );
+    getStatistics().createHistogramWithAxes(
+					    new TH1D("TOT_all_hits_mult2", "TOT of all hits", 200, -250.0, 99750.0),
+					    "Time over Threshold [ps]", "Number of Hits"
+					    );
+    getStatistics().createHistogramWithAxes(
+					    new TH1D("TOT_all_hits_mult3", "TOT of all hits", 200, -250.0, 99750.0),
+					    "Time over Threshold [ps]", "Number of Hits"
+					    );
+    getStatistics().createHistogramWithAxes(
+					    new TH1D("TOT_all_hits_mult4", "TOT of all hits", 200, -250.0, 99750.0),
+					    "Time over Threshold [ps]", "Number of Hits"
+					    );
+    getStatistics().createHistogramWithAxes(
+					    new TH1D("TOT_all_hits_multgt4", "TOT of all hits", 200, -250.0, 99750.0),
+					    "Time over Threshold [ps]", "Number of Hits"
+					    );
   getStatistics().createHistogramWithAxes(
     new TH1D("TOT_good_hits", "TOT of hits with GOOD flag", 200, -250.0, 99750.0),
     "Time over Threshold [ps]", "Number of Hits"
