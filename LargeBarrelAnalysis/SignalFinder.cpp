@@ -153,8 +153,10 @@ void SignalFinder::saveRawSignals(const vector<JPetRawSignal>& rawSigVec)
           double tot_thr = trails.at(thr_i).getValue() - leads.at(thr_i).getValue();
           getStatistics().fillHistogram(Form("thr_tot_%d_pm", thr_i + 1), pmID, tot_thr);
 
-          for (int thr_j = 0; thr_j < leads.size() && thr_j < trails.size(); ++thr_j)
+          for (int thr_j = thr_i+1; thr_j < leads.size() && thr_j < trails.size(); ++thr_j)
           {
+	    if(thr_j==thr_i)
+	      continue;
             double tdiff = leads.at(thr_j).getValue() - leads.at(thr_i).getValue();
             getStatistics().fillHistogram(Form("thr_tdiff_%d_%d_pm", thr_j + 1, thr_i + 1), pmID, tdiff);
           }
