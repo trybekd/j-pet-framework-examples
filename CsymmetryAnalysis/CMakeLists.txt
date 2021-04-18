@@ -50,8 +50,8 @@ set(HEADERS ${use_modules_from}/TimeWindowCreator.h
             ${use_modules_from}/HitFinder.h
             ${use_modules_from}/HitFinderTools.h
             ${use_modules_from}/EventFinder.h
-            ${CMAKE_CURRENT_SOURCE_DIR}/EventCategorizerTools.h
-	    ${CMAKE_CURRENT_SOURCE_DIR}/CsymmetryCat.h)
+            ${use_modules_from}/EventCategorizerTools.h
+	    ${CMAKE_CURRENT_SOURCE_DIR}/EventCategorizer.h)
 
 set(SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
             ${use_modules_from}/TimeWindowCreator.cpp
@@ -65,8 +65,8 @@ set(SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
             ${use_modules_from}/HitFinder.cpp
             ${use_modules_from}/HitFinderTools.cpp
             ${use_modules_from}/EventFinder.cpp
-	    ${CMAKE_CURRENT_SOURCE_DIR}/EventCategorizerTools.cpp
-	    ${CMAKE_CURRENT_SOURCE_DIR}/CsymmetryCat.cpp)
+	    ${use_modules_from}/EventCategorizerTools.cpp
+	    ${CMAKE_CURRENT_SOURCE_DIR}/EventCategorizer.cpp)
 
 add_executable(${projectBinary} ${SOURCES} ${HEADERS})
 target_link_libraries(${projectBinary} JPetFramework::JPetFramework)

@@ -15,8 +15,9 @@
 
 #include <JPetOptionsTools/JPetOptionsTools.h>
 #include <JPetWriter/JPetWriter.h>
-#include "EventCategorizerTools.h"
-#include "CsymmetryCat.h"
+#include "../LargeBarrelAnalysis/EventCategorizerTools.h"
+#include "../LargeBarrelAnalysis/HitFinderTools.h"
+#include "EventCategorizer.h"
 #include <iostream>
 
 using namespace jpet_options_tools;
@@ -73,6 +74,11 @@ bool EventCategorizer::init()
   if (isOptionSet(fParams.getOptions(), kSaveControlHistosParamKey)) {
     fSaveControlHistos = getOptionAsBool(fParams.getOptions(), kSaveControlHistosParamKey);
   }
+  if (isOptionSet(fParams.getOptions(), kTOTCalculationType)) {
+    fTOTCalculationType = getOptionAsString(fParams.getOptions(), kTOTCalculationType);
+  } else {
+    WARNING("No TOT calculation option given by the user. Using standard sum.");
+  }
 
 
   // Input events type
@@ -88,14 +94,7 @@ bool EventCategorizer::exec()
     vector<JPetEvent> events;
     for (uint i = 0; i < timeWindow->getNumberOfEvents(); i++) {
       const auto& event = dynamic_cast<const JPetEvent&>(timeWindow->operator[](i));
-      getStatistics().fillHistogram("multiplicity", event.getHits().size());
-      getStatistics().fillHistogram("All_events_TW",events.size());
-      //check TOT of all hits
-      if(fSaveControlHistos){
-        for(auto hit : event.getHits()){
-	  getStatistics().fillHistogram("TOT_allHits", EventCategorizerTools::calculateTOT(hit, EventCategorizerTools::TOTCalculationType::kSimplified));
-	}
-      }
+
       // Check types of current event
       bool is2Gamma = EventCategorizerTools::checkFor2Gamma(
         event, getStatistics(), fSaveControlHistos, fB2BSlotThetaDiff, fMaxTimeDiff
@@ -104,10 +103,10 @@ bool EventCategorizer::exec()
         event, getStatistics(), fSaveControlHistos
       );
       bool isPrompt = EventCategorizerTools::checkForPrompt(
-        event, getStatistics(), fSaveControlHistos, fDeexTOTCutMin, fDeexTOTCutMax
+        event, getStatistics(), fSaveControlHistos, fDeexTOTCutMin, fDeexTOTCutMax, fTOTCalculationType
       );
       bool isScattered = EventCategorizerTools::checkForScatter(
-        event, getStatistics(), fSaveControlHistos, fScatterTOFTimeDiff
+        event, getStatistics(), fSaveControlHistos, fScatterTOFTimeDiff, fTOTCalculationType
       );
 
       JPetEvent newEvent = event;
@@ -115,9 +114,11 @@ bool EventCategorizer::exec()
       if(is3Gamma) newEvent.addEventType(JPetEventType::k3Gamma);
       if(isPrompt) newEvent.addEventType(JPetEventType::kPrompt);
       if(isScattered) newEvent.addEventType(JPetEventType::kScattered);
-      
+
       if(fSaveControlHistos){
         for(auto hit : event.getHits()){
+	  auto tot = HitFinderTools::calculateTOT(hit, HitFinderTools::getTOTCalculationType(fTOTCalculationType));
+	  getStatistics().fillHistogram("TOT_all_hits",tot);
           getStatistics().fillHistogram("All_XYpos", hit.getPosX(), hit.getPosY());
         }
       }
@@ -147,9 +148,9 @@ void EventCategorizer::initialiseHistograms(){
     "Hit X position [cm]", "Hit Y position [cm]"
   );
   getStatistics().createHistogramWithAxes(
-					  new TH1F("All_events_TW", "Nr. of events in TimeWindow", 200, -.5, 199.),
-					  "TimeWindow [ps]","Number of events" 
-					  );
+    new TH1D("TOT_all_hits", "TOT of all hits", 200, 0.0, 99999.0),
+    "TOT [ps]", "Number of Hits"
+  );
 
   // Histograms for 2Gamma category
   getStatistics().createHistogramWithAxes(
@@ -204,7 +205,7 @@ void EventCategorizer::initialiseHistograms(){
 
   // Histograms for 3Gamama category
   getStatistics().createHistogramWithAxes(
-    new TH2D("3Gamma_Angles", "Relative angles - transformed", 250, -0.5, 249.5, 250, -0.5, 199.5),
+    new TH2D("3Gamma_Angles", "Relative angles - transformed", 250, -0.5, 249.5, 200, -0.5, 199.5),
     "Relative angle 1-2", "Relative angle 2-3"
   );
 
@@ -230,21 +231,6 @@ void EventCategorizer::initialiseHistograms(){
   // Histograms for deexcitation
   getStatistics().createHistogramWithAxes(
     new TH1D("Deex_TOT_cut", "TOT of all hits with deex cut (30,50) ns", 200, 24950.0, 54950.0),
-    "TOT [ps]", "Number of Hits"
-  );
-  //multiplicity
-  getStatistics().createHistogramWithAxes(
-    new TH1D("multiplicity", "hit multiplicity", 100, -0.5, 99.5),
-    "TOT [ps]", "Number of Hits"
-  );
-  
-  //histograms for TOT check
-  getStatistics().createHistogramWithAxes(
-    new TH1D("TOT_allHits", "TOT of all hits", 250, 0.0, 100000.0),
-    "TOT [ps]", "Number of Hits"
-  );
-    getStatistics().createHistogramWithAxes(
-    new TH1D("Scatter_TOT_cut", "TOT of all hits selected scattered", 200, 0.0, 24950.0),
     "TOT [ps]", "Number of Hits"
   );
 }
