@@ -73,7 +73,8 @@ protected:
         std::vector<float> fEnergy;
         std::vector<float> fTime;
 	std::vector<unsigned int> fHitType;
-        std::unique_ptr<TFile> fOutFile;
+	std::vector<unsigned int> fVtxIndex;
+	std::unique_ptr<TFile> fOutFile;
 	std::string fInName;
 	jpet_options_tools::OptsStrAny  opts;
 };
