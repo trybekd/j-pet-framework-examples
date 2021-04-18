@@ -44,6 +44,7 @@ EventCategorizer::~EventCategorizer() {
 
 bool EventCategorizer::init()
 {
+  //al below should be put into a function
   //try to read input file
   opts = fParams.getOptions();
   fInName = jpet_options_tools::getInputFile(opts);
@@ -65,12 +66,13 @@ bool EventCategorizer::init()
 
   std::string outname = "flatTree_"+fInName;
   if(gSystem->AccessPathName(outname.c_str())){
-    std::cout << "file does not exist " << std::endl;
+    std::cout << "writting output file " << outname << std::endl;
     fOutFile = std::make_unique<TFile>(outname.c_str(),"CREATE");
 
   } else {
-    std::cout << "file " << outname << " exists " << std::endl;
+    std::cout << "file " << outname << " exists: ABORTING... " << std::endl;
     ERROR("File exist.");
+    exit(-1);
   }
 
   pTree22 = new TTree("FlatTree","flat tree");
@@ -222,17 +224,15 @@ bool EventCategorizer::exec()
 
 bool EventCategorizer::terminate()
 {
-  std::cout << "blablaaaa" << std::endl;
   INFO("Event categorization completed.");
   if(!pTree22) std::cout << "wtf??" << std::endl;
   
-  std::cout << "blablaaaa2" << std::endl;
   fOutFile->cd(); 
   pTree22->Write();
   //pTree22->Print();
   fOutFile->Write("",TObject::kWriteDelete);
   
-  //fOutFile->Close();
+  fOutFile->Close();
   //delete fOutFile;
   return true;
 }
