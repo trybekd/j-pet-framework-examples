@@ -16,19 +16,25 @@
 #ifndef _JPET_SinogramType_H_
 #define _JPET_SinogramType_H_
 
+<<<<<<< .merge_file_IKvSPf
 //#ifndef __CINT__
 //#error "CINT flag is defined" 
+=======
+>>>>>>> .merge_file_xlyrF4
 #include <boost/version.hpp>
 #if BOOST_VERSION >= 106400
-#  include <boost/serialization/array_wrapper.hpp>
+  #include <boost/serialization/array_wrapper.hpp>
 #endif
 #include <boost/numeric/ublas/matrix_sparse.hpp>
 #include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
+<<<<<<< .merge_file_IKvSPf
 //#endif
 
+=======
+>>>>>>> .merge_file_xlyrF4
 
 #include "JPetWriter/JPetWriter.h"
 
