@@ -78,12 +78,6 @@ protected:
         std::vector<float> fEnergy;
         std::vector<float> fTime;
 	std::vector<unsigned int> fHitType;
-<<<<<<< HEAD
 	std::vector<unsigned int> fVtxIndex;
-	std::unique_ptr<TFile> fOutFile;
-	std::string fInName;
-	jpet_options_tools::OptsStrAny  opts;
-=======
->>>>>>> 2370341e623f0a431cbe47492e8dfa8918b15c9b
 };
 #endif /* !EVENTCATEGORIZER_H */
