@@ -85,6 +85,8 @@ bool EventCategorizer::init()
   pTree22->Branch("energy",&fEnergy);
   pTree22->Branch("time",&fTime);
   pTree22->Branch("hitType",&fHitType);
+  pTree22->Branch("vtxIndex",&fVtxIndex);
+  
   INFO("Event categorization started.");
   // Parameter for back to back categorization
   if (isOptionSet(fParams.getOptions(), kBack2BackSlotThetaDiffParamKey)){
@@ -190,6 +192,7 @@ bool EventCategorizer::exec()
       fPosZ.clear();
       //fPosZ.resize(event.getHits().size());
       fHitType.clear();
+      fVtxIndex.clear();
       for(auto hit : event.getHits()){
         fPosX.push_back(hit.getPosX());
         fPosY.push_back(hit.getPosY());
@@ -198,6 +201,7 @@ bool EventCategorizer::exec()
         fTime.push_back(hit.getTime()); 
         auto mcHit = timeWindowMC->getMCHit<JPetMCHit>(hit.getMCindex());
         fHitType.push_back(mcHit.getGenGammaMultiplicity());
+	fVtxIndex.push_back(mcHit.getMCVtxIndex());
       }
 
       pTree22->Fill();

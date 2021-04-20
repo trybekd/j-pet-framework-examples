@@ -78,5 +78,6 @@ protected:
         std::vector<float> fEnergy;
         std::vector<float> fTime;
 	std::vector<unsigned int> fHitType;
+	std::vector<unsigned int> fVtxIndex;
 };
 #endif /* !EVENTCATEGORIZER_H */
