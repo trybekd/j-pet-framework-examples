@@ -26,6 +26,8 @@
 using namespace jpet_options_tools;
 using namespace std;
 
+const double EventCategorizer::kUnknownEventType = 66666666;
+
 EventCategorizer::EventCategorizer(const char* name): JPetUserTask(name){}
 
 EventCategorizer::~EventCategorizer() {
@@ -86,6 +88,9 @@ bool EventCategorizer::init()
   pTree22->Branch("time",&fTime);
   pTree22->Branch("hitType",&fHitType);
   pTree22->Branch("vtxIndex",&fVtxIndex);
+  pTree22->Branch("recoOrthoVtxX",&fRecoOrthoVtxPosX, "recoOrthoVtxX/F");
+  pTree22->Branch("recoOrthoVtxY",&fRecoOrthoVtxPosY, "recoOrthoVtxY/F");
+  pTree22->Branch("recoOrthoVtxZ",&fRecoOrthoVtxPosZ, "recoOrthoVtxZ/F");
   
   INFO("Event categorization started.");
   // Parameter for back to back categorization
@@ -180,28 +185,40 @@ bool EventCategorizer::exec()
       if(isPrompt) newEvent.addEventType(JPetEventType::kPrompt);
       if(isScattered) newEvent.addEventType(JPetEventType::kScattered);
 
-      fNumberOfHits = event.getHits().size();
+
       fEnergy.clear();
-      //fEnergy.resize(event.getHits().size());
       fTime.clear();
-      //fTime.resize(event.getHits().size());
       fPosX.clear();
-      //fPosX.resize(event.getHits().size());
       fPosY.clear();
-      //fPosY.resize(event.getHits().size());
       fPosZ.clear();
-      //fPosZ.resize(event.getHits().size());
       fHitType.clear();
       fVtxIndex.clear();
-      for(auto hit : event.getHits()){
+      fRecoOrthoVtxPosX = 0;
+      fRecoOrthoVtxPosY = 0;
+      fRecoOrthoVtxPosZ = 0;
+
+      fNumberOfHits = event.getHits().size();
+      for(const auto& hit : event.getHits()){
         fPosX.push_back(hit.getPosX());
         fPosY.push_back(hit.getPosY());
         fPosZ.push_back(hit.getPosZ()); 
         fEnergy.push_back(hit.getEnergy()); 
         fTime.push_back(hit.getTime()); 
-        auto mcHit = timeWindowMC->getMCHit<JPetMCHit>(hit.getMCindex());
-        fHitType.push_back(mcHit.getGenGammaMultiplicity());
-	fVtxIndex.push_back(mcHit.getMCVtxIndex());
+        if (timeWindowMC) {
+          auto mcHit = timeWindowMC->getMCHit<JPetMCHit>(hit.getMCindex());
+          fHitType.push_back(mcHit.getGenGammaMultiplicity());
+          fVtxIndex.push_back(mcHit.getMCVtxIndex());
+        } else {
+          fHitType.push_back(kUnknownEventType);
+          fVtxIndex.push_back(0);
+        }
+      }
+       
+      if (fNumberOfHits == 4) {
+        auto hits = event.getHits();
+        fRecoOrthoVtxPosX = 0;
+        fRecoOrthoVtxPosY = 0;
+        fRecoOrthoVtxPosZ = 0;
       }
 
       pTree22->Fill();
