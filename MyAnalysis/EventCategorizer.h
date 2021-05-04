@@ -45,6 +45,7 @@ public:
 	virtual bool exec() override;
 	virtual bool terminate() override;
 
+        static const double kUnknownEventType;
 protected:
 	const std::string kBack2BackSlotThetaDiffParamKey = "Back2Back_Categorizer_SlotThetaDiff_float";
 	const std::string kScatterTOFTimeDiffParamKey = "Scatter_Categorizer_TOF_TimeDiff_float";
@@ -79,5 +80,8 @@ protected:
         std::vector<float> fTime;
 	std::vector<unsigned int> fHitType;
 	std::vector<unsigned int> fVtxIndex;
+        float fRecoOrthoVtxPosX = 0;
+        float fRecoOrthoVtxPosY = 0;
+        float fRecoOrthoVtxPosZ = 0;
 };
 #endif /* !EVENTCATEGORIZER_H */
