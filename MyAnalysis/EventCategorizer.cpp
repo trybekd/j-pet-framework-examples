@@ -260,13 +260,13 @@ void EventCategorizer::saveEvents(const vector<JPetEvent>& events)
 }
 
 void EventCategorizer::initialiseHistograms(){
-
+  
   // General histograms
   getStatistics().createHistogramWithAxes(
     new TH2D("All_XYpos", "Hit position XY", 240, -60.25, 59.75, 240, -60.25, 59.75),
     "Hit X position [cm]", "Hit Y position [cm]"
   );
-
+  
   // Histograms for 2Gamma category
   getStatistics().createHistogramWithAxes(
     new TH1D("2Gamma_Zpos", "Z-axis position of 2 gamma hits", 201, -50.25, 50.25),

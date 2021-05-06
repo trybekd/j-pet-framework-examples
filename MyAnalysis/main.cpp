@@ -13,7 +13,7 @@
  *  @file main.cpp
  */
 
-#include "../LargeBarrelAnalysis/EventCategorizer.h"
+#include "EventCategorizer.h"
 #include "../LargeBarrelAnalysis/EventFinder.h"
 #include "../LargeBarrelAnalysis/HitFinder.h"
 #include "../LargeBarrelAnalysis/SignalFinder.h"
@@ -38,7 +38,7 @@ int main(int argc, const char* argv[]) {
     //manager.useTask("SignalTransformer", "raw.sig", "phys.sig");
     //manager.useTask("HitFinder", "phys.sig", "hits");
     //manager.useTask("EventFinder", "hits", "unk.evt");
-    manager.useTask("EventCategorizer", "unk.evt", "");
+    manager.useTask("EventCategorizer", "unk.evt", "cat.evt");
 
     manager.run(argc, argv);
   } catch (const std::exception& except) {
