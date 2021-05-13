@@ -137,13 +137,15 @@ void HitFinder::saveHits(const std::vector<JPetHit>& hits)
   getStatistics().fillHistogram("mult_hits", sortedHits.size());
   auto mult = sortedHits.size();
   for (const auto& hit : sortedHits) {
-if (fSaveControlHistos) {
-  
+    if (fSaveControlHistos) {
+      
       auto tot = HitFinderTools::calculateTOT(hit, HitFinderTools::getTOTCalculationType(fTOTCalculationType));
       getStatistics().fillHistogram("TOT_all_hits", tot);
       //EPR TOT per scint                                                                                                                                                                             
       getStatistics().fillHistogram("tot_per_scin",
-			  tot, (float)(hit.getScintillator().getID()));
+			  tot, (float)(hit.getScintillator().getID()));                                                                                                                               
+      getStatistics().fillHistogram("tot_per_scin_zpos",
+				    tot, (float)(hit.getScintillator().getID()), hit.getPosZ());
       if(mult==1){
 	getStatistics().fillHistogram("TOT_all_hits_mult1", tot);
 	getStatistics().fillHistogram("tot_per_scin_mult1",
@@ -211,6 +213,13 @@ void HitFinder::initialiseHistograms(){
     250, -255., 99750.0, 192, 0.5, 192.5),
     "TOT hit", "ID of Scintillator"
   );
+
+  getStatistics().createHistogramWithAxes(
+    new TH3D("tot_per_scin_zpos", "Hit TOT per Scintillator ID and Z position",
+	     250, -255., 99750.0, 192, 0.5, 192.5, 200, -49.75, 50.25),
+    "TOT hit", "ID of Scintillator","Z [cm]"
+  );
+
   getStatistics().createHistogramWithAxes(
     new TH2D("tot_per_scin_mult1", "Hit TOT per Scintillator ID multiplicity 1",
     250, -255., 99750.0, 192, 0.5, 192.5),
