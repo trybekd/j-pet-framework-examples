@@ -117,12 +117,12 @@ bool EventCategorizerTools::checkForPrompt(
   for (unsigned i = 0; i < event.getHits().size(); i++) {
     double tot = HitFinderTools::calculateTOT(event.getHits().at(i), 
                                               HitFinderTools::getTOTCalculationType(fTOTCalculationType));
-    if (tot > deexTOTCutMin && tot < deexTOTCutMax) {
-      if (saveHistos) {
-        stats.fillHistogram("Deex_TOT_cut", tot);
-      }
-      return true;
+    //if (tot > deexTOTCutMin && tot < deexTOTCutMax) {
+    if (saveHistos) {
+      stats.fillHistogram("Deex_TOT_cut", event.getHits().at(i).getEnergy());
     }
+      return true;
+      // }
   }
   return false;
 }

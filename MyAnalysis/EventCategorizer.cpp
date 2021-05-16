@@ -22,6 +22,8 @@
 #include <TSystem.h>
 #include <cstdlib>
 #include <ctime>
+#include <vector>
+#include <algorithm>
 
 using namespace jpet_options_tools;
 using namespace std;
@@ -172,19 +174,12 @@ bool EventCategorizer::exec()
       bool is3Gamma = EventCategorizerTools::checkFor3Gamma(
         event, getStatistics(), fSaveControlHistos
       );
-      bool isPrompt = EventCategorizerTools::checkForPrompt(
-        event, getStatistics(), fSaveControlHistos, fDeexTOTCutMin, fDeexTOTCutMax, fTOTCalculationType
-      );
+      // bool isPrompt = EventCategorizerTools::checkForPrompt(
+      //   event, getStatistics(), fSaveControlHistos, fDeexTOTCutMin, fDeexTOTCutMax, fTOTCalculationType
+      // );
       bool isScattered = EventCategorizerTools::checkForScatter(
         event, getStatistics(), fSaveControlHistos, fScatterTOFTimeDiff, fTOTCalculationType
       );
-
-      JPetEvent newEvent = event;
-      if(is2Gamma) newEvent.addEventType(JPetEventType::k2Gamma);
-      if(is3Gamma) newEvent.addEventType(JPetEventType::k3Gamma);
-      if(isPrompt) newEvent.addEventType(JPetEventType::kPrompt);
-      if(isScattered) newEvent.addEventType(JPetEventType::kScattered);
-
 
       fEnergy.clear();
       fTime.clear();
@@ -213,13 +208,38 @@ bool EventCategorizer::exec()
           fVtxIndex.push_back(0);
         }
       }
-       
+      bool isPrompt = kFALSE;
       if (fNumberOfHits == 4) {
         auto hits = event.getHits();
-        fRecoOrthoVtxPosX = 0;
+	std::vector<float> energyDeex;
+	fRecoOrthoVtxPosX = 0;
         fRecoOrthoVtxPosY = 0;
         fRecoOrthoVtxPosZ = 0;
+	for(int i = 0; i < hits.size(); i++){
+	  getStatistics().fillHistogram("Deex_Ene_mult4",hits.at(i).getEnergy());
+	  if(hits.at(i).getEnergy() >= 650 && hits.at(i).getEnergy() <= 1200){
+	    getStatistics().fillHistogram("Deex_Ene_energyWindow",hits.at(i).getEnergy());
+	    energyDeex.push_back(hits.at(i).getEnergy());
+	  }
+	}
+	std::cout << "size " << energyDeex.size() << std::endl;
+	getStatistics().fillHistogram("mult_prompt", energyDeex.size());
+	auto result = std::max_element(energyDeex.begin(),energyDeex.end()); 
+	for(auto it: energyDeex)std::cout << "vector " << it;
+	
+	if(result!=energyDeex.end()){
+	  getStatistics().fillHistogram("Deex_Ene",*result);
+	  std::cout << "max "<< *result << std::endl;
+	  isPrompt = kTRUE;  
+	}
+	  energyDeex.clear();
       }
+      JPetEvent newEvent = event;
+      if(is2Gamma) newEvent.addEventType(JPetEventType::k2Gamma);
+      if(is3Gamma) newEvent.addEventType(JPetEventType::k3Gamma);
+      if(isPrompt) newEvent.addEventType(JPetEventType::kPrompt);
+      if(isScattered) newEvent.addEventType(JPetEventType::kScattered);
+
 
       pTree22->Fill();
       if(fSaveControlHistos){
@@ -243,8 +263,7 @@ bool EventCategorizer::terminate()
 {
   INFO("Event categorization completed.");
   if(!pTree22) std::cout << "wtf??" << std::endl;
-  
-  fOutFile->cd(); 
+  fOutFile->cd();
   pTree22->Write();
   //pTree22->Print();
   fOutFile->Write("",TObject::kWriteDelete);
@@ -345,7 +364,23 @@ void EventCategorizer::initialiseHistograms(){
 
   // Histograms for deexcitation
   getStatistics().createHistogramWithAxes(
-    new TH1D("Deex_TOT_cut", "TOT of all hits with deex cut (30,50) ns", 200, 24950.0, 54950.0),
-    "TOT [ps]", "Number of Hits"
+    new TH1D("Deex_TOT_cut", "Energy all hits", 200, 0.0, 2000.0),
+    "Energy [keV]", "Number of Hits"
+  );
+  getStatistics().createHistogramWithAxes(
+    new TH1D("Deex_Ene_mult4", "Energy 4 hits multiplicity", 200, 0.0, 2000.0),
+    "Energy [keV]", "Number of Hits"
+  );
+  getStatistics().createHistogramWithAxes(
+    new TH1D("Deex_Ene_energyWindow", "Energy 4 hits multiplicity between [650, 1200] [kEv]", 200, 0.0, 2000.0),
+    "Energy [keV]", "Number of Hits"
+  );
+  getStatistics().createHistogramWithAxes(
+    new TH1D("Deex_Ene", "Energy Prompt 4 hits multiplicity between [650, 1200] [kEv]", 200, 500.0, 1500.0),
+    "Energy [keV]", "Number of Hits"
+  );
+  getStatistics().createHistogramWithAxes(
+    new TH1D("mult_prompt", "Multiplicity prompt candidates in Energy Window [650, 1200] [kEv]", 10, -.5, 9.5),
+    "Energy [keV]", "Number of Hits"
   );
 }
