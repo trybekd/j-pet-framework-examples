@@ -167,6 +167,7 @@ bool EventCategorizer::exec()
       fEventNumber = i;
 
       const auto& event = dynamic_cast<const JPetEvent&>(timeWindow->operator[](i));
+
       // Check types of current event
       bool is2Gamma = EventCategorizerTools::checkFor2Gamma(
         event, getStatistics(), fSaveControlHistos, fB2BSlotThetaDiff, fMaxTimeDiff
@@ -222,24 +223,28 @@ bool EventCategorizer::exec()
 	    energyDeex.push_back(hits.at(i).getEnergy());
 	  }
 	}
-	std::cout << "size " << energyDeex.size() << std::endl;
 	getStatistics().fillHistogram("mult_prompt", energyDeex.size());
 	auto result = std::max_element(energyDeex.begin(),energyDeex.end()); 
-	for(auto it: energyDeex)std::cout << "vector " << it;
 	
 	if(result!=energyDeex.end()){
 	  getStatistics().fillHistogram("Deex_Ene",*result);
-	  std::cout << "max "<< *result << std::endl;
 	  isPrompt = kTRUE;  
 	}
 	  energyDeex.clear();
       }
       JPetEvent newEvent = event;
-      if(is2Gamma) newEvent.addEventType(JPetEventType::k2Gamma);
-      if(is3Gamma) newEvent.addEventType(JPetEventType::k3Gamma);
-      if(isPrompt) newEvent.addEventType(JPetEventType::kPrompt);
-      if(isScattered) newEvent.addEventType(JPetEventType::kScattered);
 
+      //reset event type
+      newEvent.setEventType(JPetEventType::kUnknown);
+      
+      // if(is2Gamma) newEvent.addEventType(JPetEventType::k2Gamma);
+      // if(is3Gamma) newEvent.addEventType(JPetEventType::k3Gamma);
+      if(isPrompt){
+	newEvent.addEventType(JPetEventType::kPrompt);
+      }else{
+	
+	// if(isScattered) newEvent.addEventType(JPetEventType::kScattered);
+      }
 
       pTree22->Fill();
       if(fSaveControlHistos){
@@ -376,7 +381,7 @@ void EventCategorizer::initialiseHistograms(){
     "Energy [keV]", "Number of Hits"
   );
   getStatistics().createHistogramWithAxes(
-    new TH1D("Deex_Ene", "Energy Prompt 4 hits multiplicity between [650, 1200] [kEv]", 200, 500.0, 1500.0),
+    new TH1D("Deex_Ene", "Energy Prompt 4 hits multiplicity between [650, 1200] [kEv]", 200, 0.0, 2000.0),
     "Energy [keV]", "Number of Hits"
   );
   getStatistics().createHistogramWithAxes(
