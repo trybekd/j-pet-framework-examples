@@ -231,7 +231,7 @@ void HitFinder::initialiseHistograms(){
     4 * fABTimeDiff / 10, -2 * fABTimeDiff, 2 * fABTimeDiff, 192, 0.5, 192.5),
     "A-B time difference", "ID of Scintillator"
   );
-
+  //TOT needs to have the "correct" boundaries for all mehods
   getStatistics().createHistogramWithAxes(
     new TH2D("tot_per_scin", "Hit TOT per Scintillator ID",
     250, -255., 99750.0, 192, 0.5, 192.5),
@@ -247,6 +247,7 @@ void HitFinder::initialiseHistograms(){
     250, -255., 99750.0, 192, 0.5, 192.5),
     "TOT hit", "ID of Scintillator"
   );
+  //be careful with the scint numers
   for(int scinID = 1; scinID <= 192; scinID++){
     getStatistics().createHistogramWithAxes(
 					    new TH2D(Form("tot_zPos_scinID%i",scinID), "Hit TOT vs Z position per single scint.",
