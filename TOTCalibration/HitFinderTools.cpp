@@ -306,13 +306,13 @@ double HitFinderTools::calculateTOTside(const std::map<int, double> & thrToTOT_s
     if( thrToTOT_side.size() > 1 )
     {
       for (auto it = std::next(thrToTOT_side.begin(), 1); it != thrToTOT_side.end(); it++) {
-        switch(type) {
+	switch(type) {
         case TOTCalculationType::kSimplified:
             weight = 1.;
             break;
         case TOTCalculationType::kThresholdRectangular:
             weight = (it->first - std::prev(it, 1)->first)/firstThr;
-            break;
+	    break;
         case TOTCalculationType::kThresholdTrapeze:
             weight = (it->first - std::prev(it, 1)->first)/firstThr;
             tot += weight*(it->second - std::prev(it, 1)->second)/2;

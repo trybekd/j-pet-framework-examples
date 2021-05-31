@@ -136,16 +136,35 @@ void HitFinder::saveHits(const std::vector<JPetHit>& hits)
   auto sortedHits = JPetAnalysisTools::getHitsOrderedByTime(hits);
   getStatistics().fillHistogram("mult_hits", sortedHits.size());
   auto mult = sortedHits.size();
+
+
   for (const auto& hit : sortedHits) {
     if (fSaveControlHistos) {
       
-      auto tot = HitFinderTools::calculateTOT(hit, HitFinderTools::getTOTCalculationType(fTOTCalculationType));
+      //for the sides
+      auto type = HitFinderTools::getTOTCalculationType(fTOTCalculationType);
+      std::map<int, double> thrToTOT_sideA = hit.getSignalA().getRecoSignal().getRawSignal().getTOTsVsThresholdValue();
+      std::map<int, double> thrToTOT_sideB = hit.getSignalB().getRecoSignal().getRawSignal().getTOTsVsThresholdValue();
+      auto totsideA = HitFinderTools::calculateTOTside(thrToTOT_sideA, type);
+      auto totsideB = HitFinderTools::calculateTOTside(thrToTOT_sideB, type);
+      getStatistics().fillHistogram("totSideA_per_scin",
+			  totsideA, (float)(hit.getScintillator().getID()));                                                                                                                               
+      getStatistics().fillHistogram("totSideB_per_scin",
+			  totsideB, (float)(hit.getScintillator().getID()));                                                                                                                               
+
+
+      auto tot = HitFinderTools::calculateTOT(hit, type);
+
       getStatistics().fillHistogram("TOT_all_hits", tot);
       //EPR TOT per scint                                                                                                                                                                             
       getStatistics().fillHistogram("tot_per_scin",
 			  tot, (float)(hit.getScintillator().getID()));                                                                                                                               
+
       getStatistics().fillHistogram("tot_per_scin_zpos",
 				    tot, (float)(hit.getScintillator().getID()), hit.getPosZ());
+
+      getStatistics().fillHistogram("tot_vs_zpos",
+				    tot, hit.getPosZ());
       if(mult==1){
 	getStatistics().fillHistogram("TOT_all_hits_mult1", tot);
 	getStatistics().fillHistogram("tot_per_scin_mult1",
@@ -213,10 +232,25 @@ void HitFinder::initialiseHistograms(){
     250, -255., 99750.0, 192, 0.5, 192.5),
     "TOT hit", "ID of Scintillator"
   );
+  getStatistics().createHistogramWithAxes(
+    new TH2D("totSideA_per_scin", "Hit TOT side A per Scintillator ID",
+    250, -255., 99750.0, 192, 0.5, 192.5),
+    "TOT hit", "ID of Scintillator"
+  );
+  getStatistics().createHistogramWithAxes(
+    new TH2D("totSideB_per_scin", "Hit TOT side B per Scintillator ID",
+    250, -255., 99750.0, 192, 0.5, 192.5),
+    "TOT hit", "ID of Scintillator"
+  );
 
   getStatistics().createHistogramWithAxes(
     new TH3D("tot_per_scin_zpos", "Hit TOT per Scintillator ID and Z position",
 	     250, -255., 99750.0, 192, 0.5, 192.5, 200, -49.75, 50.25),
+    "TOT hit", "ID of Scintillator","Z [cm]"
+  );
+  getStatistics().createHistogramWithAxes(
+    new TH2D("tot_vs_zpos", "Hit TOT along Z position",
+	     250, -255., 99750.0, 200, -49.75, 50.25),
     "TOT hit", "ID of Scintillator","Z [cm]"
   );
 
@@ -259,35 +293,35 @@ void HitFinder::initialiseHistograms(){
 
   // TOT calculating for all hits and reco flags
   getStatistics().createHistogramWithAxes(
-    new TH1D("TOT_all_hits", "TOT of all hits", 200, -250.0, 99750.0),
+    new TH1D("TOT_all_hits", "TOT of all hits", 200, -250.0, 300000.0),
     "Time over Threshold [ps]", "Number of Hits"
   );
     getStatistics().createHistogramWithAxes(
-					    new TH1D("TOT_all_hits_mult1", "TOT of all hits", 200, -250.0, 99750.0),
+					    new TH1D("TOT_all_hits_mult1", "TOT of all hits", 200, -250.0, 300000.0),
 					    "Time over Threshold [ps]", "Number of Hits"
 					    );
     getStatistics().createHistogramWithAxes(
-					    new TH1D("TOT_all_hits_mult2", "TOT of all hits", 200, -250.0, 99750.0),
+					    new TH1D("TOT_all_hits_mult2", "TOT of all hits", 200, -250.0, 300000.0),
 					    "Time over Threshold [ps]", "Number of Hits"
 					    );
     getStatistics().createHistogramWithAxes(
-					    new TH1D("TOT_all_hits_mult3", "TOT of all hits", 200, -250.0, 99750.0),
+					    new TH1D("TOT_all_hits_mult3", "TOT of all hits", 200, -250.0, 300000.0),
 					    "Time over Threshold [ps]", "Number of Hits"
 					    );
     getStatistics().createHistogramWithAxes(
-					    new TH1D("TOT_all_hits_mult4", "TOT of all hits", 200, -250.0, 99750.0),
+					    new TH1D("TOT_all_hits_mult4", "TOT of all hits", 200, -250.0, 300000.0),
 					    "Time over Threshold [ps]", "Number of Hits"
 					    );
     getStatistics().createHistogramWithAxes(
-					    new TH1D("TOT_all_hits_multgt4", "TOT of all hits", 200, -250.0, 99750.0),
+					    new TH1D("TOT_all_hits_multgt4", "TOT of all hits", 200, -250.0, 300000.0),
 					    "Time over Threshold [ps]", "Number of Hits"
 					    );
   getStatistics().createHistogramWithAxes(
-    new TH1D("TOT_good_hits", "TOT of hits with GOOD flag", 200, -250.0, 99750.0),
+    new TH1D("TOT_good_hits", "TOT of hits with GOOD flag", 200, -250.0, 300000.0),
     "Time over Threshold [ps]", "Number of Hits"
   );
   getStatistics().createHistogramWithAxes(
-    new TH1D("TOT_corr_hits", "TOT of hits with CORRUPTED flag", 200, -250.0, 99750.0),
+    new TH1D("TOT_corr_hits", "TOT of hits with CORRUPTED flag", 200, -250.0, 300000.0),
     "Time over Threshold [ps]", "Number of Hits"
   );
   getStatistics().createHistogramWithAxes(
