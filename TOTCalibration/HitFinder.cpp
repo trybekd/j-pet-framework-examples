@@ -165,6 +165,11 @@ void HitFinder::saveHits(const std::vector<JPetHit>& hits)
 
       getStatistics().fillHistogram("tot_vs_zpos",
 				    tot, hit.getPosZ());
+      for(int scinID = 1; scinID <= 192; scinID++){
+	if(TMath::Abs(hit.getPosZ()) <= 23 && hit.getScintillator().getID() == scinID)
+	  getStatistics().fillHistogram(Form("tot_zPos_scinID%i",scinID),
+				      tot, hit.getPosZ());
+      }
       if(mult==1){
 	getStatistics().fillHistogram("TOT_all_hits_mult1", tot);
 	getStatistics().fillHistogram("tot_per_scin_mult1",
@@ -242,7 +247,13 @@ void HitFinder::initialiseHistograms(){
     250, -255., 99750.0, 192, 0.5, 192.5),
     "TOT hit", "ID of Scintillator"
   );
-
+  for(int scinID = 1; scinID <= 192; scinID++){
+    getStatistics().createHistogramWithAxes(
+					    new TH2D(Form("tot_zPos_scinID%i",scinID), "Hit TOT vs Z position per single scint.",
+						     250, -255., 99750.0, 47, -23.5, 23.5),
+					    "TOT hit","Z [cm]"
+					    );
+  }
   getStatistics().createHistogramWithAxes(
     new TH3D("tot_per_scin_zpos", "Hit TOT per Scintillator ID and Z position",
 	     250, -255., 99750.0, 192, 0.5, 192.5, 200, -49.75, 50.25),
