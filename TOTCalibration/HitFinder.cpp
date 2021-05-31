@@ -256,12 +256,12 @@ void HitFinder::initialiseHistograms(){
   }
   getStatistics().createHistogramWithAxes(
     new TH3D("tot_per_scin_zpos", "Hit TOT per Scintillator ID and Z position",
-	     250, -255., 99750.0, 192, 0.5, 192.5, 200, -49.75, 50.25),
+	     250, -255., 99750.0, 192, 0.5, 192.5, 47, -23.5, 23.5),
     "TOT hit", "ID of Scintillator","Z [cm]"
   );
   getStatistics().createHistogramWithAxes(
     new TH2D("tot_vs_zpos", "Hit TOT along Z position",
-	     250, -255., 99750.0, 200, -49.75, 50.25),
+	     250, -255., 99750.0, 47, -23.5, 23.5),
     "TOT hit", "ID of Scintillator","Z [cm]"
   );
 
@@ -290,7 +290,7 @@ void HitFinder::initialiseHistograms(){
     250, -255., 99750.0, 192, 0.5, 192.5),
     "TOT hit with mult==1", "ID of Scintillator"
   );
-
+  //remember active material covers only 23 cm each side from center
   getStatistics().createHistogramWithAxes(
     new TH2D("hit_pos_per_scin", "Hit Position per Scintillator ID",
     200, -49.75, 50.25, 192, 0.5, 192.5),
