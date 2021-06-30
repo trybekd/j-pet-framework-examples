@@ -189,7 +189,6 @@ add_subdirectory(Imaging)
 add_subdirectory(TimeCalibration_iter)
 add_subdirectory(UserDataClassExample)
 add_subdirectory(TOTCalibration)
-=======
 add_subdirectory(InterThresholdCalibration)
 add_subdirectory(LargeBarrelAnalysis)
 add_subdirectory(VelocityCalibration)
@@ -205,4 +204,4 @@ add_subdirectory(Imaging)
 add_subdirectory(TimeCalibration_iter)
 add_subdirectory(UserDataClassExample)
 add_subdirectory(TOTAnalysis)
->>>>>>> develop
+
