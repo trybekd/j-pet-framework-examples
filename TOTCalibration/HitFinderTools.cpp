@@ -292,12 +292,24 @@ double HitFinderTools::calculateTOT(const JPetHit& hit, TOTCalculationType type)
   std::map<int, double> thrToTOT_sideA = hit.getSignalA().getRecoSignal().getRawSignal().getTOTsVsThresholdValue();
   std::map<int, double> thrToTOT_sideB = hit.getSignalB().getRecoSignal().getRawSignal().getTOTsVsThresholdValue();
 
-  tot += calculateTOTside(thrToTOT_sideA, type);
-  tot += calculateTOTside(thrToTOT_sideB, type);
+  tot += calculateTOTside(hit, thrToTOT_sideA, type);
+  tot += calculateTOTside(hit, thrToTOT_sideB, type);
   return tot;
 }
 
-double HitFinderTools::calculateTOTside(const std::map<int, double> & thrToTOT_side, TOTCalculationType type)
+double HitFinderTools::calculateTOTPlot(const JPetHit& hit, int thr, TOTCalculationType type)
+{
+  double tot = 0.0;
+
+  std::map<int, double> thrToTOT_sideA = hit.getSignalA().getRecoSignal().getRawSignal().getTOTsVsThresholdValue();
+  std::map<int, double> thrToTOT_sideB = hit.getSignalB().getRecoSignal().getRawSignal().getTOTsVsThresholdValue();
+
+  tot += calculateTOTsidePlot(hit, thrToTOT_sideA, thr, type);
+  tot += calculateTOTsidePlot(hit, thrToTOT_sideB, thr, type);
+  return tot;
+}
+
+double HitFinderTools::calculateTOTside(const JPetHit& hit, const std::map<int, double> & thrToTOT_side, TOTCalculationType type)
 {
   double tot = 0., weight = 1.;
   if (!thrToTOT_side.empty()) {
@@ -320,6 +332,44 @@ double HitFinderTools::calculateTOTside(const std::map<int, double> & thrToTOT_s
         }
         tot += weight*it->second;
       }
+    }
+  }
+  else
+    return 0;
+  return tot;
+}
+
+double HitFinderTools::calculateTOTsidePlot(const JPetHit& hit, const std::map<int, double> & thrToTOT_side, int thr, TOTCalculationType type)
+{
+  double tot = -666., weight = 1.;
+  
+  int cc =0.;
+  if (!thrToTOT_side.empty()) {
+    for (auto it1 = std::next(thrToTOT_side.begin(), 0); it1 != thrToTOT_side.end(); it1++) {
+      double firstThr = it1->first;
+      cc++;
+      if(firstThr != thr){
+	continue;
+      }
+      tot += weight*it1->second;
+      if( thrToTOT_side.size() > 1 )
+	{
+	  for (auto it = std::next(thrToTOT_side.begin(), cc); it != thrToTOT_side.end(); it++) {
+	    switch(type) {
+	    case TOTCalculationType::kSimplified:
+	      weight = 1.;
+	      break;
+	    case TOTCalculationType::kThresholdRectangular:
+	      weight = (it->first - std::prev(it, 1)->first)/firstThr;
+	      break;
+	    case TOTCalculationType::kThresholdTrapeze:
+	      weight = (it->first - std::prev(it, 1)->first)/firstThr;
+	      tot += weight*fabs(it->second - std::prev(it, 1)->second)/2;
+	      break;
+	    }
+	    tot += weight*it->second;
+	  }
+	}
     }
   }
   else

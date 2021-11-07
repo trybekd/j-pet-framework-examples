@@ -154,19 +154,25 @@ void HitFinder::saveHits(const std::vector<JPetHit>& hits)
       auto type = HitFinderTools::getTOTCalculationType(fTOTCalculationType);
       std::map<int, double> thrToTOT_sideA = hit.getSignalA().getRecoSignal().getRawSignal().getTOTsVsThresholdValue();
       std::map<int, double> thrToTOT_sideB = hit.getSignalB().getRecoSignal().getRawSignal().getTOTsVsThresholdValue();
-      auto totsideA = HitFinderTools::calculateTOTside(thrToTOT_sideA, type);
-      auto totsideB = HitFinderTools::calculateTOTside(thrToTOT_sideB, type);
+     
+      auto totsideA = HitFinderTools::calculateTOTside(hit, thrToTOT_sideA, type);
+      auto totsideB = HitFinderTools::calculateTOTside(hit, thrToTOT_sideB, type);
       getStatistics().fillHistogram("totSideA_per_scin",
 			  totsideA, (float)(hit.getScintillator().getID()));                                                                                                                               
       getStatistics().fillHistogram("totSideB_per_scin",
 			  totsideB, (float)(hit.getScintillator().getID()));                                                                                                                               
-
-
+      //calculate tot for Zposition studies and correction for different thresholds
       auto tot = HitFinderTools::calculateTOT(hit, type);
+      auto tot1 = HitFinderTools::calculateTOTPlot(hit, 30, type);
+      auto tot2 = HitFinderTools::calculateTOTPlot(hit, 80, type);
+      auto tot3 = HitFinderTools::calculateTOTPlot(hit, 190, type);
       //synchronization ==> needs to be moved somewhere else for official
       double factorA = fTOTConstantsTree.get("scin." + to_string(hit.getScintillator().getID()) + ".tot_scaling_factor_a", 1.0); //default 1.f
       double factorB = fTOTConstantsTree.get("scin." + to_string(hit.getScintillator().getID()) + ".tot_scaling_factor_b", 0.0); //default 0.f
       tot = tot * factorA + factorB;
+      tot1 = tot1 * factorA + factorB;
+      tot2 = tot2 * factorA + factorB;
+      tot3 = tot3 * factorA + factorB;
       getStatistics().fillHistogram("TOT_all_hits", tot);
       //EPR TOT per scint                                                                                                                                                                             
       getStatistics().fillHistogram("tot_per_scin",
@@ -177,6 +183,13 @@ void HitFinder::saveHits(const std::vector<JPetHit>& hits)
 
       getStatistics().fillHistogram("tot_vs_zpos",
 				    tot, hit.getPosZ());
+      getStatistics().fillHistogram("tot_vs_zpos1",
+				    tot1, hit.getPosZ());
+      getStatistics().fillHistogram("tot_vs_zpos2",
+				    tot2, hit.getPosZ());
+      getStatistics().fillHistogram("tot_vs_zpos3",
+				    tot3, hit.getPosZ());
+
       for(int scinID = 1; scinID <= 192; scinID++){
 	if(TMath::Abs(hit.getPosZ()) <= 23 && hit.getScintillator().getID() == scinID)
 	  getStatistics().fillHistogram(Form("tot_zPos_scinID%i",scinID),
@@ -269,7 +282,7 @@ void HitFinder::initialiseHistograms(){
   }
   getStatistics().createHistogramWithAxes(
     new TH3D("tot_per_scin_zpos", "Hit TOT per Scintillator ID and Z position",
-	     2*250, -255., 199500.0, 192, 0.5, 192.5, 47, -23.5, 23.5),
+	     250, -255., 99750.0, 192, 0.5, 192.5, 47, -23.5, 23.5),
     "TOT hit", "ID of Scintillator","Z [cm]"
   );
   getStatistics().createHistogramWithAxes(
@@ -277,7 +290,25 @@ void HitFinder::initialiseHistograms(){
 	     2*250, -255., 199500.0, 47, -23.5, 23.5),
     "TOT hit", "ID of Scintillator","Z [cm]"
   );
+  //for thresholds
+  getStatistics().createHistogramWithAxes(
+    new TH2D("tot_vs_zpos1", "Hit TOT along Z position threshold 1, 2, 3, 4",
+	     2*250, -255., 199500.0, 47, -23.5, 23.5),
+    "TOT hit", "ID of Scintillator","Z [cm]"
+  );
+  getStatistics().createHistogramWithAxes(
+    new TH2D("tot_vs_zpos2", "Hit TOT along Z position threshold 2, 3, 4",
+	     175, -255., 69825.0, 47, -23.5, 23.5),
+    "TOT hit", "ID of Scintillator","Z [cm]"
+  );
 
+    getStatistics().createHistogramWithAxes(
+    new TH2D("tot_vs_zpos3", "Hit TOT along Z position threshold 3, 4",
+	     125, -255., 49875.0, 47, -23.5, 23.5),
+    "TOT hit", "ID of Scintillator","Z [cm]"
+  );
+    //end thresholds z position tot
+    
   getStatistics().createHistogramWithAxes(
     new TH2D("tot_per_scin_mult1", "Hit TOT per Scintillator ID multiplicity 1",
     2*250, -255., 199500.0, 192, 0.5, 192.5),

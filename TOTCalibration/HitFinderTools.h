@@ -67,7 +67,9 @@ public:
   static void checkTheta(const double& theta);
   static TOTCalculationType getTOTCalculationType(const std::string& type);
   static double calculateTOT(const JPetHit& hit, TOTCalculationType type = kSimplified);
-  static double calculateTOTside(const std::map<int, double> & thrToTOT_side, TOTCalculationType type);
+  static double calculateTOTPlot(const JPetHit& hit, int thr = 30, TOTCalculationType type = kSimplified);
+  static double calculateTOTside(const JPetHit& hit, const std::map<int, double> & thrToTOT_side, TOTCalculationType type = kSimplified);
+  static double calculateTOTsidePlot(const JPetHit& hit, const std::map<int, double> & thrToTOT_side, int thr = 30, TOTCalculationType type = kSimplified);
 };
 
 #endif /* !HITFINDERTOOLS_H */
