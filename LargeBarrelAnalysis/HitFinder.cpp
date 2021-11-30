@@ -153,16 +153,16 @@ void HitFinder::saveHits(const std::vector<JPetHit>& hits)
   for (const auto& hit : sortedHits) {
 if (fSaveControlHistos) {
       auto tot = HitFinderTools::calculateTOT(hit, HitFinderTools::getTOTCalculationType(fTOTCalculationType));
+      // synchronization
+      if (fSyncToT) {
+	tot = HitFinderTools::syncTOT(hit, tot, fConstantsTree);
+      }
       getStatistics().fillHistogram("TOT_all_hits", tot);
       if(hit.getRecoFlag()==JPetHit::Good){
         getStatistics().fillHistogram("TOT_good_hits", tot);
       } else if(hit.getRecoFlag()==JPetHit::Corrupted){
         getStatistics().fillHistogram("TOT_corr_hits", tot);
-      }
-      // synchronization
-      if (fSyncToT) {
-	tot = HitFinderTools::syncTOT(hit, tot, fConstantsTree);
-      }
+      }      
     }
     fOutputEvents->add<JPetHit>(hit);
   }
