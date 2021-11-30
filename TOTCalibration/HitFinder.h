@@ -58,8 +58,8 @@ protected:
   const std::string kABTimeDiffParamKey = "HitFinder_ABTimeDiff_float";
   const std::string kConvertToTParamKey = "HitFinder_ConvertToT_bool";
   const std::string kTOTCalculationType = "HitFinder_TOTCalculationType_std::string";
+  const std::string kUseToTSyncParamKey = "HitFinder_SyncToT_bool";
   const std::string kTOTConstantsFileParamKey = "TOTConstantsFile_std::string";
-  boost::property_tree::ptree fTOTConstantsTree;
   ToTEnergyConverterFactory fToTConverterFactory;
   bool fUseCorruptedSignals = false;
   bool fSaveControlHistos = true;
@@ -67,6 +67,8 @@ protected:
   double fABTimeDiff = 6000.0;
   int fRefDetScinID = -1;
   std::string fTOTCalculationType = "";
+  bool fSyncToT = false;
+  boost::property_tree::ptree fTOTConstantsTree;
 };
 
 #endif /* !HITFINDER_H */

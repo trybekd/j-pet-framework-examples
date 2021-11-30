@@ -36,7 +36,9 @@ public:
   {
     kSimplified,
     kThresholdRectangular,
-    kThresholdTrapeze
+    kThresholdTrapeze,
+    kThresholdElena,
+    kThresholdTriangle
   };
   static void sortByTime(std::vector<JPetPhysSignal>& signals);
   static std::map<int, std::vector<JPetPhysSignal>> getSignalsBySlot(
@@ -66,10 +68,11 @@ public:
   static int getProperChannel(const JPetPhysSignal& signal);
   static void checkTheta(const double& theta);
   static TOTCalculationType getTOTCalculationType(const std::string& type);
-  static double calculateTOT(const JPetHit& hit, TOTCalculationType type = kSimplified);
+  static double calculateTOT(const JPetHit& hit, JPetStatistics& stats, TOTCalculationType type = kSimplified);
   static double calculateTOTPlot(const JPetHit& hit, int thr = 30, TOTCalculationType type = kSimplified);
-  static double calculateTOTside(const JPetHit& hit, const std::map<int, double> & thrToTOT_side, TOTCalculationType type = kSimplified);
+  static double calculateTOTside(const JPetHit& hit, const std::map<int, double> & thrToTOT_side, std::map<int, double> trailingPoints, JPetStatistics& stats, TOTCalculationType type = kSimplified);
   static double calculateTOTsidePlot(const JPetHit& hit, const std::map<int, double> & thrToTOT_side, int thr = 30, TOTCalculationType type = kSimplified);
+  static double calculateAreaTriangle(const JPetHit& hit, std::map<int, double> thrToTOT_side, std::map<int, double> trailingPoints, int thrNr, int thr);
 };
 
 #endif /* !HITFINDERTOOLS_H */

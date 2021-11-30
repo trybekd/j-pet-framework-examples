@@ -116,7 +116,7 @@ bool EventCategorizerTools::checkForPrompt(
 {
   for (unsigned i = 0; i < event.getHits().size(); i++) {
     double tot = HitFinderTools::calculateTOT(event.getHits().at(i), 
-                                              HitFinderTools::getTOTCalculationType(fTOTCalculationType));
+                                              stats, HitFinderTools::getTOTCalculationType(fTOTCalculationType));
     if (tot > deexTOTCutMin && tot < deexTOTCutMax) {
       if (saveHistos) {
         stats.fillHistogram("Deex_TOT_cut", tot);
@@ -159,9 +159,9 @@ bool EventCategorizerTools::checkForScatter(
       if (fabs(scattTOF - timeDiff) < scatterTOFTimeDiff) {
         if (saveHistos) {
           stats.fillHistogram("ScatterAngle_PrimaryTOT", scattAngle, HitFinderTools::calculateTOT(primaryHit, 
-                                                        HitFinderTools::getTOTCalculationType(fTOTCalculationType)));
+												  stats, HitFinderTools::getTOTCalculationType(fTOTCalculationType)));
           stats.fillHistogram("ScatterAngle_ScatterTOT", scattAngle, HitFinderTools::calculateTOT(scatterHit, 
-                                                        HitFinderTools::getTOTCalculationType(fTOTCalculationType)));
+												  stats, HitFinderTools::getTOTCalculationType(fTOTCalculationType)));
         }
         return true;
       }
