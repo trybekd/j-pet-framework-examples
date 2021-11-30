@@ -21,6 +21,8 @@
 #include "ToTEnergyConverter.h"
 #include <JPetHit/JPetHit.h>
 #include <vector>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
 /**
  * @brief Tools set fot HitFinder module
@@ -73,6 +75,7 @@ public:
   static double calculateTOTside(const JPetHit& hit, const std::map<int, double> & thrToTOT_side, std::map<int, double> trailingPoints, JPetStatistics& stats, TOTCalculationType type = kSimplified);
   static double calculateTOTsidePlot(const JPetHit& hit, const std::map<int, double> & thrToTOT_side, int thr = 30, TOTCalculationType type = kSimplified);
   static double calculateAreaTriangle(const JPetHit& hit, std::map<int, double> thrToTOT_side, std::map<int, double> trailingPoints, int thrNr, int thr);
+  static double syncTOT(const JPetHit& hit, double TOT, boost::property_tree::ptree fSyncTree);
 };
 
 #endif /* !HITFINDERTOOLS_H */

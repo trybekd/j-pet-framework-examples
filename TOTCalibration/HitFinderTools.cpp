@@ -564,3 +564,17 @@ double HitFinderTools::calculateAreaTriangle(
   std::cout << "Calculated vcp " << vcp << " area " << area << std::endl;
   return area;
 }
+double HitFinderTools::syncTOT(const JPetHit& hit, double TOT, boost::property_tree::ptree fSyncTree){
+  double syncTOT = 0;
+  double factorA = fSyncTree.get(
+					 "scin." + to_string(hit.getScintillator().getID()) +
+					 ".tot_scaling_factor_a",
+					 1.0); // default 1.f                 
+  double factorB = fSyncTree.get(
+					 "scin." + to_string(hit.getScintillator().getID()) +
+					 ".tot_scaling_factor_b",
+					 0.0); // default 0.f
+  
+  syncTOT = TOT * factorA + factorB;
+  return syncTOT;  
+}

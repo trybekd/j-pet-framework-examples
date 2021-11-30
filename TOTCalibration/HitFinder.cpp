@@ -31,7 +31,7 @@ using namespace std;
 
 using namespace tot_energy_converter;
 using namespace jpet_options_tools;
-using boost::property_tree::ptree;
+using namespace boost::property_tree;
 
 HitFinder::HitFinder(const char *name) : JPetUserTask(name) {}
 
@@ -109,9 +109,8 @@ bool HitFinder::init() {
     if (fSyncToT) {
       if (isOptionSet(fParams.getOptions(), kTOTConstantsFileParamKey)) {
         INFO("Hit finder will perform ToT synchronization.");
-        read_json(
-            getOptionAsString(fParams.getOptions(), kTOTConstantsFileParamKey),
-            fTOTConstantsTree);
+	std::string kSync = getOptionAsString(fParams.getOptions(), kTOTConstantsFileParamKey);
+	read_json(kSync, fConstantsTree);
       } else {
         ERROR("No file for TOT synchronization provided. No synchroniztion "
               "applied.");
@@ -201,18 +200,11 @@ void HitFinder::saveHits(const std::vector<JPetHit> &hits) {
       auto tot3 = HitFinderTools::calculateTOTPlot(hit, 190, type);
       // synchronization ==> needs to be moved somewhere else for official
       if (fSyncToT) {
-        double factorA = fTOTConstantsTree.get(
-            "scin." + to_string(hit.getScintillator().getID()) +
-                ".tot_scaling_factor_a",
-            1.0); // default 1.f
-        double factorB = fTOTConstantsTree.get(
-            "scin." + to_string(hit.getScintillator().getID()) +
-                ".tot_scaling_factor_b",
-            0.0); // default 0.f
-        tot = tot * factorA + factorB;
-        tot1 = tot1 * factorA + factorB;
-        tot2 = tot2 * factorA + factorB;
-        tot3 = tot3 * factorA + factorB;
+	
+	tot = HitFinderTools::syncTOT(hit, tot, fConstantsTree);
+	tot1 = HitFinderTools::syncTOT(hit, tot1, fConstantsTree);
+        tot2 = HitFinderTools::syncTOT(hit, tot2, fConstantsTree);
+        tot3 = HitFinderTools::syncTOT(hit, tot3, fConstantsTree);
       }
       getStatistics().fillHistogram("TOT_all_hits", tot);
       // EPR TOT per scint

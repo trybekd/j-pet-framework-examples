@@ -68,7 +68,7 @@ protected:
   int fRefDetScinID = -1;
   std::string fTOTCalculationType = "";
   bool fSyncToT = false;
-  boost::property_tree::ptree fTOTConstantsTree;
+  boost::property_tree::ptree fConstantsTree;
 };
 
 #endif /* !HITFINDER_H */
