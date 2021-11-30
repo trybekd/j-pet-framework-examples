@@ -31,6 +31,7 @@ using namespace std;
 
 using namespace tot_energy_converter;
 using namespace jpet_options_tools;
+using namespace boost::property_tree;
 
 HitFinder::HitFinder(const char* name) : JPetUserTask(name) {}
 
@@ -94,7 +95,22 @@ bool HitFinder::init()
       INFO("Hit finder will not convert ToT to deposited energy since no user parameters are provided.");
     }
   }
-  
+  // Loading parameters for TOT synchronizationi
+  if (isOptionSet(fParams.getOptions(), kUseToTSyncParamKey)) {
+    fSyncToT = getOptionAsBool(fParams.getOptions(), kUseToTSyncParamKey);
+    if (fSyncToT) {
+      if (isOptionSet(fParams.getOptions(), kTOTConstantsFileParamKey)) {
+        INFO("Hit finder will perform ToT synchronization.");
+	std::string kSync = getOptionAsString(fParams.getOptions(), kTOTConstantsFileParamKey);
+	read_json(kSync, fConstantsTree);
+      } else {
+        ERROR("No file for TOT synchronization provided. No synchroniztion "
+              "applied.");
+      }
+    } else {
+      WARNING("Hit finder won't performe the ToT synchronization.");
+    }
+  }
   if (isOptionSet(fParams.getOptions(), kTOTCalculationType)) {
     fTOTCalculationType = getOptionAsString(fParams.getOptions(), kTOTCalculationType);
   } else {
@@ -142,6 +158,10 @@ if (fSaveControlHistos) {
         getStatistics().fillHistogram("TOT_good_hits", tot);
       } else if(hit.getRecoFlag()==JPetHit::Corrupted){
         getStatistics().fillHistogram("TOT_corr_hits", tot);
+      }
+      // synchronization
+      if (fSyncToT) {
+	tot = HitFinderTools::syncTOT(hit, tot, fConstantsTree);
       }
     }
     fOutputEvents->add<JPetHit>(hit);
