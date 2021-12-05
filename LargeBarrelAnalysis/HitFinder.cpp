@@ -136,6 +136,9 @@ bool HitFinder::exec()
     if (fSaveControlHistos) {
       getStatistics().fillHistogram("hits_per_time_slot", allHits.size());
     }
+    if(fSyncToT){
+      HitFinderTools::saveTOTsync(allHits, fTOTCalculationType, fConstantsTree);
+    }
     saveHits(allHits);
   } else return false;
   return true;
@@ -151,11 +154,11 @@ void HitFinder::saveHits(const std::vector<JPetHit>& hits)
 {
   auto sortedHits = JPetAnalysisTools::getHitsOrderedByTime(hits);
   for (const auto& hit : sortedHits) {
-if (fSaveControlHistos) {
+    if (fSaveControlHistos) {
       auto tot = HitFinderTools::calculateTOT(hit, HitFinderTools::getTOTCalculationType(fTOTCalculationType));
       // synchronization
       if (fSyncToT) {
-	tot = HitFinderTools::syncTOT(hit, tot, fConstantsTree);
+	getStatistics().fillHistogram("SyncTOT_all_hits", hit.getEnergy());
       }
       getStatistics().fillHistogram("TOT_all_hits", tot);
       if(hit.getRecoFlag()==JPetHit::Good){
@@ -202,15 +205,19 @@ void HitFinder::initialiseHistograms(){
 
   // TOT calculating for all hits and reco flags
   getStatistics().createHistogramWithAxes(
-    new TH1D("TOT_all_hits", "TOT of all hits", 200, -250.0, 99750.0),
+    new TH1D("TOT_all_hits", "TOT of all hits", 400, -250.0, 199500.0),
+    "Time over Threshold [ps]", "Number of Hits"
+  );
+    getStatistics().createHistogramWithAxes(
+    new TH1D("TOT_all_hits", "TOT of all hits", 400, -250.0, 199500.0),
     "Time over Threshold [ps]", "Number of Hits"
   );
   getStatistics().createHistogramWithAxes(
-    new TH1D("TOT_good_hits", "TOT of hits with GOOD flag", 200, -250.0, 99750.0),
+    new TH1D("SyncTOT_good_hits", "Sync. TOT of hits with GOOD flag", 400, -250.0, 199500.0),
     "Time over Threshold [ps]", "Number of Hits"
   );
   getStatistics().createHistogramWithAxes(
-    new TH1D("TOT_corr_hits", "TOT of hits with CORRUPTED flag", 200, -250.0, 99750.0),
+    new TH1D("TOT_corr_hits", "TOT of hits with CORRUPTED flag", 400, -250.0, 199500.0),
     "Time over Threshold [ps]", "Number of Hits"
   );
   getStatistics().createHistogramWithAxes(

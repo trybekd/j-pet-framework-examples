@@ -70,6 +70,7 @@ public:
   static TOTCalculationType getTOTCalculationType(const std::string& type);
   static double calculateTOT(const JPetHit& hit, TOTCalculationType type = kSimplified);
   static double calculateTOTside(const std::map<int, double> & thrToTOT_side, TOTCalculationType type);
+  static void saveTOTsync(std::vector<JPetHit>& hits,  std::string TOTCalculationType, boost::property_tree::ptree fSyncTree);
   static double syncTOT(const JPetHit& hit, double TOT, boost::property_tree::ptree fSyncTree);
 };
 
