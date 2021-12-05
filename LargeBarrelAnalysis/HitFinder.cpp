@@ -209,8 +209,8 @@ void HitFinder::initialiseHistograms(){
     "Time over Threshold [ps]", "Number of Hits"
   );
     getStatistics().createHistogramWithAxes(
-    new TH1D("TOT_all_hits", "TOT of all hits", 400, -250.0, 199500.0),
-    "Time over Threshold [ps]", "Number of Hits"
+    new TH1D("SyncTOT_all_hits", "TOT of all hits", 400, -250.0, 199500.0),
+    "Time over Threshold [ps] Synchronized", "Number of Hits"
   );
   getStatistics().createHistogramWithAxes(
     new TH1D("SyncTOT_good_hits", "Sync. TOT of hits with GOOD flag", 400, -250.0, 199500.0),
