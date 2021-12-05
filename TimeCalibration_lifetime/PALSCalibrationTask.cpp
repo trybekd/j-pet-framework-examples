@@ -169,18 +169,23 @@ bool PALSCalibrationTask::exec()
       vector<JPetHit> AnnihilationCandidates, DeexcitationCandidates;
       for (auto hit : event.getHits()) {
         int ScintID = hit.getScintillator().getID();
-        double TOT = HitFinderTools::calculateTOT(hit);
-        if (fSaveControlHistos) {
+	// double TOT = HitFinderTools::calculateTOT(hit);
+	//to use synchronized values stored as hit.Energy
+	double TOT = hit.getEnergy();
+	if (fSaveControlHistos) {
           getStatistics().fillHistogram("All_XYpos", hit.getPosX(), hit.getPosY());
           getStatistics().fillHistogram("TOT_vs_ID_matched", TOT, ScintID);
           PlotTDiffAB_afterCalibration(hit);
           hit.setPosZ(CorrectZPosition(hit));
           getStatistics().fillHistogram("Z_vs_ID", hit.getPosZ(), ScintID);
         }
+	std::cout << "TOT requirements anni " << fAnniTOTCutMin << " " << fAnniTOTCutMax << " deex " << fDeexTOTCutMin << " " << fDeexTOTCutMax << " and TOT " << TOT << std::endl;
         if (fAnniTOTCutMin < TOT && TOT < fAnniTOTCutMax && fabs( hit.getPosZ() ) < fZpositionCut) {
+	  std::cout << "annihilation candidate " <<std::endl;
           AnnihilationCandidates.push_back(hit);
         } else if (fDeexTOTCutMin < TOT && TOT < fDeexTOTCutMax && fabs( hit.getPosZ() ) < fZpositionCut) {
-          DeexcitationCandidates.push_back(hit);
+	  std::cout << "deex candidate " << std::endl;
+	  DeexcitationCandidates.push_back(hit);
         }					
       }
 
