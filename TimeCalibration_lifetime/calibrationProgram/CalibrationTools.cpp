@@ -261,10 +261,10 @@ void CalibrationTools::GenerateCalibrationFile()
     CalibrationFile << NumberToChar(PALSParams.at(i).at(0), 0) << "\t" << NumberToChar(PALSParams.at(i).at(1), 0) << "\t";
     CalibrationFile << side << "\t" << NumberToChar(PALSParams.at(i).at(3), 0) << "\t";
     if (side == 'A') {
-      CalibrationFile << NumberToChar(oldParams.at(iteratorForOldParams).at(4) - PALSParams.at(i).at(4), 6) << "\t" << NumberToChar(PALSParams.at(i).at(5), 6) << "\t";
+      CalibrationFile << NumberToChar(oldParams.at(iteratorForOldParams).at(4) - PALSParams.at(i).at(4)/1000., 6) << "\t" << NumberToChar(PALSParams.at(i).at(5), 6) << "\t";
     } else if (side == 'B') {
-      CalibrationFile << NumberToChar(oldParams.at(iteratorForOldParams).at(4) - PALSParams.at(i).at(4) - ABParams.at(i).at(4), 6) << "\t"; 
-      CalibrationFile << NumberToChar(sqrt(pow(PALSParams.at(i).at(5), 2) + pow(ABParams.at(i).at(5), 2)), 6) << "\t";
+      CalibrationFile << NumberToChar(oldParams.at(iteratorForOldParams).at(4) - PALSParams.at(i).at(4)/1000. - ABParams.at(i).at(4)/1000., 6) << "\t"; 
+      CalibrationFile << NumberToChar(sqrt(pow(PALSParams.at(i).at(5)/1000., 2) + pow(ABParams.at(i).at(5)/1000., 2)), 6) << "\t";
     } else {
       std::cerr << "Wrong side while reading old clibration file" << std::endl;
     }
@@ -280,9 +280,9 @@ std::vector<TH2D*> GetHistosFromFile(TFile* fileIn, int numberOfThresholds, std:
   std::vector<TH2D*> Histos;
   TDirectory *dir = gDirectory;
   if (calibrationOption == "single") {
-    fileIn->GetObject("EventFinder subtask 4 stats", dir);
+    fileIn->GetObject("EventFinder subtask 0 stats", dir);
   } else if (calibrationOption == "multi") {
-    fileIn->GetObject("PALSCalibrationTask subtask 5 stats", dir);
+    fileIn->GetObject("PALSCalibrationTask subtask 1 stats", dir);
   }
   if (!dir) {
     std::cerr << "No directory EventFinder or PALSCalibrationTask in a given file or wrong calibration option (single or multi)" << std::endl;
