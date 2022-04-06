@@ -376,46 +376,46 @@ double HitFinderTools::calculateTOTside(
     double firstThr = thrToTOT_side.begin()->first;
     tot += weight * thrToTOT_side.begin()->second;
 
-    if (thrToTOT_side.begin()->first == 30)
-      stats.fillHistogram("thr_vs_tot", thrToTOT_side.begin()->second, 1);
-    else if (thrToTOT_side.begin()->first == 80)
-      stats.fillHistogram("thr_vs_tot", thrToTOT_side.begin()->second, 2);
-    else if (thrToTOT_side.begin()->first == 190)
-      stats.fillHistogram("thr_vs_tot", thrToTOT_side.begin()->second, 3);
-    else
-      stats.fillHistogram("thr_vs_tot", thrToTOT_side.begin()->second, 4);
+    // if (thrToTOT_side.begin()->first == 30)
+    //   stats.fillHistogram("thr_vs_tot", thrToTOT_side.begin()->second, 1);
+    // else if (thrToTOT_side.begin()->first == 80)
+    //   stats.fillHistogram("thr_vs_tot", thrToTOT_side.begin()->second, 2);
+    // else if (thrToTOT_side.begin()->first == 190)
+    //   stats.fillHistogram("thr_vs_tot", thrToTOT_side.begin()->second, 3);
+    // else
+    //   stats.fillHistogram("thr_vs_tot", thrToTOT_side.begin()->second, 4);
 
     if (thrToTOT_side.size() > 1) {
       for (auto it = std::next(thrToTOT_side.begin(), 1);
            it != thrToTOT_side.end(); it++) {
 
-        if (it->first == 80) {
-          if (it->second < std::prev(it, 1)->second)
-            stats.fillHistogram("reversed_tot_thr2", 1);
-          else
-            stats.fillHistogram("reversed_tot_thr2", 0);
-        } else if (it->first == 190) {
-          if (it->second < std::prev(it, 1)->second)
-            stats.fillHistogram("reversed_tot_thr3", 1);
-          else
-            stats.fillHistogram("reversed_tot_thr3", 0);
-        } else {
-          if (it->second < std::prev(it, 1)->second)
-            stats.fillHistogram("reversed_tot_thr4", 1);
-          else
-            stats.fillHistogram("reversed_tot_thr4", 0);
-        }
+        // if (it->first == 80) {
+        //   if (it->second < std::prev(it, 1)->second)
+        //     stats.fillHistogram("reversed_tot_thr2", 1);
+        //   else
+        //     stats.fillHistogram("reversed_tot_thr2", 0);
+        // } else if (it->first == 190) {
+        //   if (it->second < std::prev(it, 1)->second)
+        //     stats.fillHistogram("reversed_tot_thr3", 1);
+        //   else
+        //     stats.fillHistogram("reversed_tot_thr3", 0);
+        // } else {
+        //   if (it->second < std::prev(it, 1)->second)
+        //     stats.fillHistogram("reversed_tot_thr4", 1);
+        //   else
+        //     stats.fillHistogram("reversed_tot_thr4", 0);
+        // }
 
         thrNr++;
-        stats.fillHistogram("TOTdiff", it->second - std::prev(it, 1)->second);
-        if (it->first == 30)
-          stats.fillHistogram("thr_vs_tot", it->second, 1);
-        else if (it->first == 80)
-          stats.fillHistogram("thr_vs_tot", it->second, 2);
-        else if (it->first == 190)
-          stats.fillHistogram("thr_vs_tot", it->second, 3);
-        else
-          stats.fillHistogram("thr_vs_tot", it->second, 4);
+        // stats.fillHistogram("TOTdiff", it->second - std::prev(it, 1)->second);
+        // if (it->first == 30)
+        //   stats.fillHistogram("thr_vs_tot", it->second, 1);
+        // else if (it->first == 80)
+        //   stats.fillHistogram("thr_vs_tot", it->second, 2);
+        // else if (it->first == 190)
+        //   stats.fillHistogram("thr_vs_tot", it->second, 3);
+        // else
+        //   stats.fillHistogram("thr_vs_tot", it->second, 4);
 
         switch (type) {
         case TOTCalculationType::kSimplified:

@@ -438,29 +438,29 @@ void HitFinder::initialiseHistograms() {
         "Deposited energy [keV]", "ToT of Hit [ps]");
   }
 
-  getStatistics().createHistogramWithAxes(
-      new TH1D("TOTdiff", "TOT(i) - TOT(i-1)", 250, -5000.0, 5000.0),
-      "TOTdiff [ps]", "Number of Hits");
-  getStatistics().createHistogramWithAxes(
-      new TH1D(
-          "reversed_tot_thr2",
-          "Number hit with TOTi < TOTi-1 == 1 else TOTi > TOTi-1 with thi = 80",
-          2, -0.5, 1.5),
-      "True/False", "Number of Hits");
-  getStatistics().createHistogramWithAxes(
-      new TH1D("reversed_tot_thr3",
-               "Number hit with TOTi < TOTi-1 == 1 else TOTi > TOTi-1 with thi "
-               "= 190",
-               2, -0.5, 1.5),
-      "True/False", "Number of Hits");
-  getStatistics().createHistogramWithAxes(
-      new TH1D("reversed_tot_thr4",
-               "Number hit with TOTi < TOTi-1 == 1 else TOTi > TOTi-1 with thi "
-               "= 300",
-               2, -0.5, 1.5),
-      "True/False", "Number of Hits");
-  getStatistics().createHistogramWithAxes(
-      new TH2D("thr_vs_tot", "thrNr vs TOT of the hits", 250, -5000.0,
-               30000.0, 6, -0.5, 5.5),
-      "ToT of Hit [ps]", "THR [#number]");
+  // getStatistics().createHistogramWithAxes(
+  //     new TH1D("TOTdiff", "TOT(i) - TOT(i-1)", 250, -5000.0, 5000.0),
+  //     "TOTdiff [ps]", "Number of Hits");
+  // getStatistics().createHistogramWithAxes(
+  //     new TH1D(
+  //         "reversed_tot_thr2",
+  //         "Number hit with TOTi < TOTi-1 == 1 else TOTi > TOTi-1 with thi = 80",
+  //         2, -0.5, 1.5),
+  //     "True/False", "Number of Hits");
+  // getStatistics().createHistogramWithAxes(
+  //     new TH1D("reversed_tot_thr3",
+  //              "Number hit with TOTi < TOTi-1 == 1 else TOTi > TOTi-1 with thi "
+  //              "= 190",
+  //              2, -0.5, 1.5),
+  //     "True/False", "Number of Hits");
+  // getStatistics().createHistogramWithAxes(
+  //     new TH1D("reversed_tot_thr4",
+  //              "Number hit with TOTi < TOTi-1 == 1 else TOTi > TOTi-1 with thi "
+  //              "= 300",
+  //              2, -0.5, 1.5),
+  //     "True/False", "Number of Hits");
+  // getStatistics().createHistogramWithAxes(
+  //     new TH2D("thr_vs_tot", "thrNr vs TOT of the hits", 250, -5000.0,
+  //              30000.0, 6, -0.5, 5.5),
+  //     "ToT of Hit [ps]", "THR [#number]");
 }
