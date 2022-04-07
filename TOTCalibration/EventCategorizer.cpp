@@ -202,7 +202,7 @@ void EventCategorizer::initialiseHistograms(){
 
   // Histograms for 3Gamama category
   getStatistics().createHistogramWithAxes(
-    new TH2D("3Gamma_Angles", "Relative angles - transformed", 250, -0.5, 249.5, 20, -0.5, 199.5),
+    new TH2D("3Gamma_Angles", "Relative angles - transformed", 300., -0.5, 299.5, 300., -0.5, 299.5),
     "Relative angle 1-2", "Relative angle 2-3"
   );
 
