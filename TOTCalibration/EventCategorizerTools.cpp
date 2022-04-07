@@ -76,7 +76,7 @@ bool EventCategorizerTools::checkFor2Gamma(
 */
 bool EventCategorizerTools::checkFor3Gamma(const JPetEvent& event, JPetStatistics& stats, bool saveHistos)
 {
-  if (event.getHits().size() != 3) return false;
+  if (event.getHits().size() < 3) return false;
   for (uint i = 0; i < event.getHits().size(); i++) {
     for (uint j = i + 1; j < event.getHits().size(); j++) {
       for (uint k = j + 1; k < event.getHits().size(); k++) {
@@ -93,7 +93,7 @@ bool EventCategorizerTools::checkFor3Gamma(const JPetEvent& event, JPetStatistic
         vector<double> relativeAngles;
         relativeAngles.push_back(thetaAngles.at(1) - thetaAngles.at(0));
         relativeAngles.push_back(thetaAngles.at(2) - thetaAngles.at(1));
-        relativeAngles.push_back(360.0 - thetaAngles.at(2) + thetaAngles.at(0));
+        relativeAngles.push_back(360.0 - (thetaAngles.at(2) - thetaAngles.at(0)));
         sort(relativeAngles.begin(), relativeAngles.end());
         double transformedX = relativeAngles.at(1) + relativeAngles.at(0);
         double transformedY = relativeAngles.at(1) - relativeAngles.at(0);
@@ -106,7 +106,7 @@ bool EventCategorizerTools::checkFor3Gamma(const JPetEvent& event, JPetStatistic
 	vector<Double_t> relativeAngles3D;
 	relativeAngles3D.push_back(delta12);
 	relativeAngles3D.push_back(delta23);
-	relativeAngles3D.push_back(360. - (delta23-delta12));
+	relativeAngles3D.push_back(360. - (delta23+delta12));
 	sort(relativeAngles3D.begin(), relativeAngles3D.end());
 	
 	double transformedX3D = relativeAngles3D.at(1) + relativeAngles3D.at(0);
