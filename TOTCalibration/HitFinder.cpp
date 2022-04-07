@@ -194,10 +194,10 @@ void HitFinder::saveHits(const std::vector<JPetHit> &hits) {
       // (float)(hit.getScintillator().getID()));
       // calculate tot for Zposition studies and correction for different
       // thresholds
-      auto tot = HitFinderTools::calculateTOT(hit, getStatistics(), type);
-      auto tot1 = HitFinderTools::calculateTOTPlot(hit, 30, type);
-      auto tot2 = HitFinderTools::calculateTOTPlot(hit, 80, type);
-      auto tot3 = HitFinderTools::calculateTOTPlot(hit, 190, type);
+      float tot;
+      float tot1;
+      float tot2;
+      float tot3;
       // synchronization ==> needs to be moved somewhere else for official
       if (fSyncToT) {
 	
@@ -206,8 +206,14 @@ void HitFinder::saveHits(const std::vector<JPetHit> &hits) {
         tot2 = HitFinderTools::syncTOT(hit, tot2, fConstantsTree);
         tot3 = HitFinderTools::syncTOT(hit, tot3, fConstantsTree);
       }
-      getStatistics().fillHistogram("TOT_all_hits", tot);
+      else{
+	tot = HitFinderTools::calculateTOT(hit, getStatistics(), type);
+	tot1 = HitFinderTools::calculateTOTPlot(hit, 30, type);	       
+	tot2 = HitFinderTools::calculateTOTPlot(hit, 80, type);
+	tot3 = HitFinderTools::calculateTOTPlot(hit, 190, type);
+      }
       // EPR TOT per scint
+      getStatistics().fillHistogram("TOT_all_hits", tot);
       getStatistics().fillHistogram("tot_per_scin", tot,
                                     (float)(hit.getScintillator().getID()));
 
