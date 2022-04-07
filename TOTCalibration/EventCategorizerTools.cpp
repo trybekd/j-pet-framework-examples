@@ -76,7 +76,7 @@ bool EventCategorizerTools::checkFor2Gamma(
 */
 bool EventCategorizerTools::checkFor3Gamma(const JPetEvent& event, JPetStatistics& stats, bool saveHistos)
 {
-  if (event.getHits().size() < 3) return false;
+  if (event.getHits().size() != 3) return false;
   for (uint i = 0; i < event.getHits().size(); i++) {
     for (uint j = i + 1; j < event.getHits().size(); j++) {
       for (uint k = j + 1; k < event.getHits().size(); k++) {
@@ -98,8 +98,23 @@ bool EventCategorizerTools::checkFor3Gamma(const JPetEvent& event, JPetStatistic
         double transformedX = relativeAngles.at(1) + relativeAngles.at(0);
         double transformedY = relativeAngles.at(1) - relativeAngles.at(0);
 
+	TVector3 anniFirst(firstHit.getPos());
+	TVector3 anniSecond(secondHit.getPos());
+	TVector3 anniThird(thirdHit.getPos());
+	Double_t delta12 = TMath::RadToDeg()*anniFirst.Angle(anniSecond);
+	Double_t delta23 = TMath::RadToDeg()*anniSecond.Angle(anniThird);
+	vector<Double_t> relativeAngles3D;
+	relativeAngles3D.push_back(delta12);
+	relativeAngles3D.push_back(delta23);
+	relativeAngles3D.push_back(360. - (delta23-delta12));
+	sort(relativeAngles3D.begin(), relativeAngles3D.end());
+	
+	double transformedX3D = relativeAngles3D.at(1) + relativeAngles3D.at(0);
+	double transformedY3D = relativeAngles3D.at(1) - relativeAngles3D.at(0);
+	
         if (saveHistos) {
-          stats.fillHistogram("3Gamma_Angles", transformedX, transformedY);
+          stats.fillHistogram("3Gamma_Angles3D", transformedX3D, transformedY3D);
+	  stats.fillHistogram("3Gamma_Angles", transformedX, transformedY);
         }
       }
     }
