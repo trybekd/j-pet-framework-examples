@@ -280,7 +280,7 @@ std::vector<TH2D*> GetHistosFromFile(TFile* fileIn, int numberOfThresholds, std:
   std::vector<TH2D*> Histos;
   TDirectory *dir = gDirectory;
   if (calibrationOption == "single") {
-    fileIn->GetObject("EventFinder subtask 0 stats", dir);
+    fileIn->GetObject("EventFinder subtask 4 stats", dir);
   } else if (calibrationOption == "multi") {
     fileIn->GetObject("PALSCalibrationTask subtask 1 stats", dir);
   }

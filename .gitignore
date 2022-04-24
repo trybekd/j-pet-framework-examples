@@ -30,8 +30,6 @@ MakeFile
 
 *.1
 
-*.xml
-
 *.hld
 
 FrameworkExample
@@ -41,8 +39,7 @@ ScopeLoaderExample/cfg/data/1/
 LargeBarrelExample
 
 build/
-
-*.json
+build2/
 
 unitTestData/*
 AnalysisExample/*.root.old
@@ -52,3 +49,25 @@ LargeBarrelAnalysisExtended/*.txt
 ScopeLoaderExample/cfg/
 LargeBarrelAnalysis/dummyCalibration.txt
 modules/large_barrel/findFFTW-download/*
+
+
+CosmicAnalysis/userParams.json
+ImageReconstruction/userParams.json
+Imaging/userParams.json
+InterThresholdCalibration/userParams.json
+LargeBarrelAnalysis/conf_trb3.xml
+LargeBarrelAnalysis/userParams.json
+MCGeantAnalysis/userParams.json
+PhysicAnalysis/userParams.json
+TOTCalibration/
+TimeCalibration/conf_trb3.xml
+TimeCalibration/userParams.json
+TimeCalibration_iter/conf_trb3.xml
+TimeCalibration_iter/userParams.json
+TimeCalibration_lifetime/calibParams.json
+TimeCalibration_lifetime/conf_trb3.xml
+TimeCalibration_lifetime/dummyCalibration.txt
+TimeCalibration_lifetime/effLenParams.json
+TimeCalibration_lifetime/userParams.json
+VelocityCalibration/conf_trb3.xml
+VelocityCalibration/userParams.json
