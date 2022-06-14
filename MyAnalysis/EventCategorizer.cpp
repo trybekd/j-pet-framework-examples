@@ -91,6 +91,12 @@ bool EventCategorizer::init()
   pTree22->Branch("recoOrthoVtxX",&fRecoOrthoVtxPosX, "recoOrthoVtxX/F");
   pTree22->Branch("recoOrthoVtxY",&fRecoOrthoVtxPosY, "recoOrthoVtxY/F");
   pTree22->Branch("recoOrthoVtxZ",&fRecoOrthoVtxPosZ, "recoOrthoVtxZ/F");
+  pTree22->Branch("isAcc",&fIsAcc, "isAcc/O");
+  pTree22->Branch("isSecondary",&fIsSecondary, "isSecondary/O");
+  pTree22->Branch("isScattered",&fIsScattered, "isScattered/O");
+  pTree22->Branch("isOPs",&fIsOPs, "isOPs/O");
+  pTree22->Branch("isPickOff",&fIsPickOff, "isPickOff/O");
+  pTree22->Branch("containsPrompt",&fContainsPrompt, "containsPrompt/O");
   
   INFO("Event categorization started.");
   // Parameter for back to back categorization
@@ -211,8 +217,8 @@ bool EventCategorizer::exec()
         } else {
           fHitType.push_back(kUnknownEventType);
           fVtxIndex.push_back(0);
-        }
-      }
+        }	
+      }//end hit loop
        
       if (fNumberOfHits == 4) {
         auto hits = event.getHits();
@@ -221,7 +227,48 @@ bool EventCategorizer::exec()
         fRecoOrthoVtxPosZ = 0;
       }
 
+      if ( std::equal(fVtxIndex.begin() + 1, fVtxIndex.end(), fVtxIndex.begin()) )
+      	fIsAcc = kFALSE;
+      else{
+      	fIsAcc = kTRUE;
+      }
+
+      for(auto i : fHitType){
+	auto number = i%10;
+	auto n = 1;
+	if(i%100!=0 && number!=0 && i>10)
+	  fIsScattered=kTRUE;
+	if(number==1)
+	  fContainsPrompt=kTRUE;
+	else if(number==2)
+	  fIsPickOff=kTRUE;
+	else if(number==3)
+	  fIsOPs=kTRUE;
+	else if(number==0){
+	  fIsSecondary=kTRUE;
+	  while(number==0&&i>0){
+	    n = n*10;	    
+	    number = (i/n)%10;
+	    if(i%n*100 == 0 && number!=0 && i/n>10)
+	      fIsScattered=kTRUE;
+	    if(number==1)
+	      fContainsPrompt=kTRUE;
+	    else if(number==2)
+	      fIsPickOff=kTRUE;
+	    else if(number==3)
+	      fIsOPs=kTRUE;
+	  }
+	}
+      }//end auto i:fHitType
+    
       pTree22->Fill();
+
+      fIsSecondary = kFALSE;
+      fIsScattered = kFALSE;
+      fContainsPrompt = kFALSE;
+      fIsPickOff = kFALSE;
+      fIsOPs = kFALSE;
+
       if(fSaveControlHistos){
         for(auto hit : event.getHits()){
 

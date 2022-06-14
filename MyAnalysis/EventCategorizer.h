@@ -83,5 +83,11 @@ protected:
         float fRecoOrthoVtxPosX = 0;
         float fRecoOrthoVtxPosY = 0;
         float fRecoOrthoVtxPosZ = 0;
+        bool fIsAcc = kFALSE;
+        bool fIsOPs = kFALSE;
+        bool fIsPickOff = kFALSE;
+        bool fContainsPrompt = kFALSE;
+        bool fIsScattered = kFALSE;
+        bool fIsSecondary = kFALSE;
 };
 #endif /* !EVENTCATEGORIZER_H */
