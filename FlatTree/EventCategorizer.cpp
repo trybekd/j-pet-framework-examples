@@ -22,6 +22,8 @@
 #include <TSystem.h>
 #include <cstdlib>
 #include <ctime>
+#include <vector>
+#include <algorithm>
 
 using namespace jpet_options_tools;
 using namespace std;
@@ -171,6 +173,7 @@ bool EventCategorizer::exec()
       fEventNumber = i;
 
       const auto& event = dynamic_cast<const JPetEvent&>(timeWindow->operator[](i));
+
       // Check types of current event
       bool is2Gamma = EventCategorizerTools::checkFor2Gamma(
         event, getStatistics(), fSaveControlHistos, fB2BSlotThetaDiff, fMaxTimeDiff
@@ -178,19 +181,12 @@ bool EventCategorizer::exec()
       bool is3Gamma = EventCategorizerTools::checkFor3Gamma(
         event, getStatistics(), fSaveControlHistos
       );
-      bool isPrompt = EventCategorizerTools::checkForPrompt(
-        event, getStatistics(), fSaveControlHistos, fDeexTOTCutMin, fDeexTOTCutMax, fTOTCalculationType
-      );
+      // bool isPrompt = EventCategorizerTools::checkForPrompt(
+      //   event, getStatistics(), fSaveControlHistos, fDeexTOTCutMin, fDeexTOTCutMax, fTOTCalculationType
+      // );
       bool isScattered = EventCategorizerTools::checkForScatter(
         event, getStatistics(), fSaveControlHistos, fScatterTOFTimeDiff, fTOTCalculationType
       );
-
-      JPetEvent newEvent = event;
-      if(is2Gamma) newEvent.addEventType(JPetEventType::k2Gamma);
-      if(is3Gamma) newEvent.addEventType(JPetEventType::k3Gamma);
-      if(isPrompt) newEvent.addEventType(JPetEventType::kPrompt);
-      if(isScattered) newEvent.addEventType(JPetEventType::kScattered);
-
 
       fEnergy.clear();
       fTime.clear();
@@ -217,14 +213,43 @@ bool EventCategorizer::exec()
         } else {
           fHitType.push_back(kUnknownEventType);
           fVtxIndex.push_back(0);
-        }	
-      }//end hit loop
-       
+        }
+      }
+      bool isPrompt = kFALSE;
       if (fNumberOfHits == 4) {
         auto hits = event.getHits();
-        fRecoOrthoVtxPosX = 0;
+	std::vector<float> energyDeex;
+	fRecoOrthoVtxPosX = 0;
         fRecoOrthoVtxPosY = 0;
         fRecoOrthoVtxPosZ = 0;
+	for(int i = 0; i < hits.size(); i++){
+	  getStatistics().fillHistogram("Deex_Ene_mult4",hits.at(i).getEnergy());
+	  if(hits.at(i).getEnergy() >= 650 && hits.at(i).getEnergy() <= 1200){
+	    getStatistics().fillHistogram("Deex_Ene_energyWindow",hits.at(i).getEnergy());
+	    energyDeex.push_back(hits.at(i).getEnergy());
+	  }
+	}
+	getStatistics().fillHistogram("mult_prompt", energyDeex.size());
+	auto result = std::max_element(energyDeex.begin(),energyDeex.end()); 
+	
+	if(result!=energyDeex.end()){
+	  getStatistics().fillHistogram("Deex_Ene",*result);
+	  isPrompt = kTRUE;  
+	}
+	  energyDeex.clear();
+      }
+      JPetEvent newEvent = event;
+
+      //reset event type
+      newEvent.setEventType(JPetEventType::kUnknown);
+      
+      // if(is2Gamma) newEvent.addEventType(JPetEventType::k2Gamma);
+      // if(is3Gamma) newEvent.addEventType(JPetEventType::k3Gamma);
+      if(isPrompt){
+	newEvent.addEventType(JPetEventType::kPrompt);
+      }else{
+	
+	// if(isScattered) newEvent.addEventType(JPetEventType::kScattered);
       }
 
       if ( std::equal(fVtxIndex.begin() + 1, fVtxIndex.end(), fVtxIndex.begin()) )
@@ -290,8 +315,7 @@ bool EventCategorizer::terminate()
 {
   INFO("Event categorization completed.");
   if(!pTree22) std::cout << "wtf??" << std::endl;
-  
-  fOutFile->cd(); 
+  fOutFile->cd();
   pTree22->Write();
   //pTree22->Print();
   fOutFile->Write("",TObject::kWriteDelete);
@@ -307,13 +331,13 @@ void EventCategorizer::saveEvents(const vector<JPetEvent>& events)
 }
 
 void EventCategorizer::initialiseHistograms(){
-
+  
   // General histograms
   getStatistics().createHistogramWithAxes(
     new TH2D("All_XYpos", "Hit position XY", 240, -60.25, 59.75, 240, -60.25, 59.75),
     "Hit X position [cm]", "Hit Y position [cm]"
   );
-
+  
   // Histograms for 2Gamma category
   getStatistics().createHistogramWithAxes(
     new TH1D("2Gamma_Zpos", "Z-axis position of 2 gamma hits", 201, -50.25, 50.25),
@@ -392,7 +416,23 @@ void EventCategorizer::initialiseHistograms(){
 
   // Histograms for deexcitation
   getStatistics().createHistogramWithAxes(
-    new TH1D("Deex_TOT_cut", "TOT of all hits with deex cut (30,50) ns", 200, 24950.0, 54950.0),
-    "TOT [ps]", "Number of Hits"
+    new TH1D("Deex_TOT_cut", "Energy all hits", 200, 0.0, 2000.0),
+    "Energy [keV]", "Number of Hits"
+  );
+  getStatistics().createHistogramWithAxes(
+    new TH1D("Deex_Ene_mult4", "Energy 4 hits multiplicity", 200, 0.0, 2000.0),
+    "Energy [keV]", "Number of Hits"
+  );
+  getStatistics().createHistogramWithAxes(
+    new TH1D("Deex_Ene_energyWindow", "Energy 4 hits multiplicity between [650, 1200] [kEv]", 200, 0.0, 2000.0),
+    "Energy [keV]", "Number of Hits"
+  );
+  getStatistics().createHistogramWithAxes(
+    new TH1D("Deex_Ene", "Energy Prompt 4 hits multiplicity between [650, 1200] [kEv]", 200, 0.0, 2000.0),
+    "Energy [keV]", "Number of Hits"
+  );
+  getStatistics().createHistogramWithAxes(
+    new TH1D("mult_prompt", "Multiplicity prompt candidates in Energy Window [650, 1200] [kEv]", 10, -.5, 9.5),
+    "Energy [keV]", "Number of Hits"
   );
 }
