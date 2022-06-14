@@ -18,7 +18,7 @@ endif()
 ## Project name - set this section appropriately for your project
 ## (please remove this comment in your template-derived analysis)
 ######################################################################
-set(projectName MyAnalysis)
+set(projectName FlatTree)
 
 ## Auxiliary files are copied to build directory after CMake
 ## You can add any files to this list
@@ -52,8 +52,8 @@ set(HEADERS ${use_modules_from}/TimeWindowCreator.h
             ${use_modules_from}/EventFinder.h
             #${use_modules_from}/EventCategorizer.h
             #${use_modules_from}/EventCategorizerTools.h)
-            ../MyAnalysis/EventCategorizer.h
-            ../MyAnalysis/EventCategorizerTools.h)
+            ../FlatTree/EventCategorizer.h
+            ../FlatTree/EventCategorizerTools.h)
 
 set(SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
             ${use_modules_from}/TimeWindowCreator.cpp
@@ -69,8 +69,8 @@ set(SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
             ${use_modules_from}/EventFinder.cpp
             #${use_modules_from}/EventCategorizer.cpp
             #${use_modules_from}/EventCategorizerTools.cpp)
-            ../MyAnalysis/EventCategorizer.cpp
-            ../MyAnalysis/EventCategorizerTools.cpp)
+            ../FlatTree/EventCategorizer.cpp
+            ../FlatTree/EventCategorizerTools.cpp)
 
 add_executable(${projectBinary} ${SOURCES} ${HEADERS})
 target_link_libraries(${projectBinary} JPetFramework::JPetFramework)
