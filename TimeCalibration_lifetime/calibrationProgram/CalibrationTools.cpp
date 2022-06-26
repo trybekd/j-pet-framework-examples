@@ -552,7 +552,10 @@ Parameter CalibrationTools::FindMiddle(TH1D* histo, double firstBinCenter, doubl
     //For calculations of derivative argument should be a mean of two arguments between which derivative is calculated
     //In order not to create additional argument vector for derivative, one can just apply argument shift coming from
     //calculations of the derivative
-    double argumentShift = Arguments.at(firstEstimationForExtremumBin+1) - Arguments.at(firstEstimationForExtremumBin);
+    //EPR this is to protect case Arguments.size()==0 --> Happened to tape 222
+    double argumentShift  = 0;
+    if(Arguments.size() != 0)
+      argumentShift = Arguments.at(firstEstimationForExtremumBin+1) - Arguments.at(firstEstimationForExtremumBin);
     //Peak estimated as a "zero" of the first derivative. Zero is esitmated from a linear fit in close range of the firstEstimationForExtremumBin
     finalEstimatioOfExtremum = FindPeak(Arguments, FirstDerivative, 
                                              firstEstimationForExtremumBin-binRangeForLinearFitting, firstEstimationForExtremumBin+binRangeForLinearFitting);
