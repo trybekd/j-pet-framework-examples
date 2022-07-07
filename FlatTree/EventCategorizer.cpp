@@ -99,6 +99,7 @@ bool EventCategorizer::init()
   pTree22->Branch("isOPs",&fIsOPs, "isOPs/O");
   pTree22->Branch("isPickOff",&fIsPickOff, "isPickOff/O");
   pTree22->Branch("containsPrompt",&fContainsPrompt, "containsPrompt/O");
+  pTree22->Branch("timeDiff",&fTimeDiff, "timeDiff/F");
   
   INFO("Event categorization started.");
   // Parameter for back to back categorization
@@ -200,8 +201,19 @@ bool EventCategorizer::exec()
       fRecoOrthoVtxPosZ = 0;
 
       fNumberOfHits = event.getHits().size();
+      auto vhits = event.getHits();
+      
+      int count = 0;
+      auto firstHit = vhits[0];
       for(const auto& hit : event.getHits()){
-        fPosX.push_back(hit.getPosX());
+      
+      if(count>0 && vhits.size() > 1){
+	
+	fTimeDiff = TMath::Abs(firstHit.getTime() - hit.getTime());
+	getStatistics().fillHistogram("htimeDiff",fTimeDiff);
+      }
+	count++;
+	fPosX.push_back(hit.getPosX());
         fPosY.push_back(hit.getPosY());
         fPosZ.push_back(hit.getPosZ()); 
         fEnergy.push_back(hit.getEnergy()); 
@@ -222,32 +234,41 @@ bool EventCategorizer::exec()
 	fRecoOrthoVtxPosX = 0;
         fRecoOrthoVtxPosY = 0;
         fRecoOrthoVtxPosZ = 0;
-	for(int i = 0; i < hits.size(); i++){
-	  getStatistics().fillHistogram("Deex_Ene_mult4",hits.at(i).getEnergy());
-	  if(hits.at(i).getEnergy() >= 650 && hits.at(i).getEnergy() <= 1200){
-	    getStatistics().fillHistogram("Deex_Ene_energyWindow",hits.at(i).getEnergy());
-	    energyDeex.push_back(hits.at(i).getEnergy());
+	//I need to identify the prompt out of 4 hits and remove from hits to set the gammas for the GPS IP calculation
+	// alternatively I can create a new container (vector) as a copy of the hits so this is not altered
+	//I need to know also if isOPs or isPickOff
+	if(hits.size()>4)
+	  continue;
+	else{
+	  //	  std::cout << hits.size() << std::endl;
+	  for(int i = 0; i < hits.size(); i++){
+	    getStatistics().fillHistogram("Deex_Ene_mult4",hits.at(i).getEnergy());
+	    if(hits.at(i).getEnergy() >= 650 && hits.at(i).getEnergy() <= 1200){
+	      getStatistics().fillHistogram("Deex_Ene_energyWindow",hits.at(i).getEnergy());
+	      energyDeex.push_back(hits.at(i).getEnergy());
+	    }
 	  }
-	}
-	getStatistics().fillHistogram("mult_prompt", energyDeex.size());
-	auto result = std::max_element(energyDeex.begin(),energyDeex.end()); 
+	  getStatistics().fillHistogram("mult_prompt", energyDeex.size());
+	  auto result = std::max_element(energyDeex.begin(),energyDeex.end()); 
 	
-	if(result!=energyDeex.end()){
-	  getStatistics().fillHistogram("Deex_Ene",*result);
-	  isPrompt = kTRUE;  
-	}
+	  if(result!=energyDeex.end()){
+	    getStatistics().fillHistogram("Deex_Ene",*result);
+	    isPrompt = kTRUE;  
+	  }
 	  energyDeex.clear();
+	}
       }
-      JPetEvent newEvent = event;
 
+      JPetEvent newEvent = event;
+      
       //reset event type
       newEvent.setEventType(JPetEventType::kUnknown);
       
-      // if(is2Gamma) newEvent.addEventType(JPetEventType::k2Gamma);
-      // if(is3Gamma) newEvent.addEventType(JPetEventType::k3Gamma);
       if(isPrompt){
 	newEvent.addEventType(JPetEventType::kPrompt);
       }else{
+	// if(is2Gamma) newEvent.addEventType(JPetEventType::k2Gamma);
+	// if(is3Gamma) newEvent.addEventType(JPetEventType::k3Gamma);
 	
 	// if(isScattered) newEvent.addEventType(JPetEventType::kScattered);
       }
@@ -435,4 +456,9 @@ void EventCategorizer::initialiseHistograms(){
     new TH1D("mult_prompt", "Multiplicity prompt candidates in Energy Window [650, 1200] [kEv]", 10, -.5, 9.5),
     "Energy [keV]", "Number of Hits"
   );
+  getStatistics().createHistogramWithAxes(
+    new TH1D("htimeDiff", "Absolute time difference between hits", 250, -.5, 300000),
+    "Abs(t_{i} - t_{j})", "Number of Hits"
+  );
 }
+

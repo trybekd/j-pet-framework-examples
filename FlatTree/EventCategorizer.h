@@ -89,5 +89,6 @@ protected:
         bool fContainsPrompt = kFALSE;
         bool fIsScattered = kFALSE;
         bool fIsSecondary = kFALSE;
+        float fTimeDiff = -100000.0;
 };
 #endif /* !EVENTCATEGORIZER_H */

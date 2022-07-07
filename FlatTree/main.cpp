@@ -26,11 +26,11 @@ int main(int argc, const char* argv[]) {
   try {
     JPetManager& manager = JPetManager::getManager();
     
-    manager.registerTask<TimeWindowCreator>("TimeWindowCreator");
-    manager.registerTask<SignalFinder>("SignalFinder");
-    manager.registerTask<SignalTransformer>("SignalTransformer");
-    manager.registerTask<HitFinder>("HitFinder");
-    manager.registerTask<EventFinder>("EventFinder");
+    // manager.registerTask<TimeWindowCreator>("TimeWindowCreator");
+    // manager.registerTask<SignalFinder>("SignalFinder");
+    // manager.registerTask<SignalTransformer>("SignalTransformer");
+    // manager.registerTask<HitFinder>("HitFinder");
+    // manager.registerTask<EventFinder>("EventFinder");
     manager.registerTask<EventCategorizer>("EventCategorizer");
 
     //manager.useTask("TimeWindowCreator", "hld", "tslot.calib");
