@@ -207,11 +207,6 @@ bool EventCategorizer::exec()
       auto firstHit = vhits[0];
       for(const auto& hit : event.getHits()){
       
-      if(count>0 && vhits.size() > 1){
-	
-	fTimeDiff = TMath::Abs(firstHit.getTime() - hit.getTime());
-	getStatistics().fillHistogram("htimeDiff",fTimeDiff);
-      }
 	count++;
 	fPosX.push_back(hit.getPosX());
         fPosY.push_back(hit.getPosY());
@@ -228,7 +223,7 @@ bool EventCategorizer::exec()
         }
       }
       bool isPrompt = kFALSE;
-      if (fNumberOfHits == 4) {
+      if (false) {
         auto hits = event.getHits();
 	std::vector<float> energyDeex;
 	fRecoOrthoVtxPosX = 0;
