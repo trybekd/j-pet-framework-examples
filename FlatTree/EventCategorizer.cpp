@@ -13,17 +13,18 @@
  *  @file EventCategorizer.cpp
  */
 
+#include "EventCategorizer.h"
+#include "EventCategorizerTools.h"
+#include "SourcePos.h"
+#include <JPetMCHit/JPetMCHit.h>
 #include <JPetOptionsTools/JPetOptionsTools.h>
 #include <JPetWriter/JPetWriter.h>
-#include "EventCategorizerTools.h"
-#include "EventCategorizer.h"
-#include <JPetMCHit/JPetMCHit.h>
-#include <iostream>
 #include <TSystem.h>
+#include <algorithm>
 #include <cstdlib>
 #include <ctime>
+#include <iostream>
 #include <vector>
-#include <algorithm>
 
 using namespace jpet_options_tools;
 using namespace std;
@@ -206,8 +207,8 @@ bool EventCategorizer::exec()
       int count = 0;
       auto firstHit = vhits[0];
       for(const auto& hit : event.getHits()){
-      
-	count++;
+
+  count++;
 	fPosX.push_back(hit.getPosX());
         fPosY.push_back(hit.getPosY());
         fPosZ.push_back(hit.getPosZ()); 
@@ -217,40 +218,51 @@ bool EventCategorizer::exec()
           auto mcHit = timeWindowMC->getMCHit<JPetMCHit>(hit.getMCindex());
           fHitType.push_back(mcHit.getGenGammaMultiplicity());
           fVtxIndex.push_back(mcHit.getMCVtxIndex());
+
+          const TVector3& pos = SourcePos::idSourcePosMap[mcHit.getMCVtxIndex()];
+
+          fRecoOrthoVtxPosX = pos.x();
+          fRecoOrthoVtxPosY = pos.y();
+          fRecoOrthoVtxPosZ = pos.z();
         } else {
           fHitType.push_back(kUnknownEventType);
           fVtxIndex.push_back(0);
+
+          fRecoOrthoVtxPosX = 0;
+          fRecoOrthoVtxPosY = 0;
+          fRecoOrthoVtxPosZ = 0;
         }
       }
       bool isPrompt = kFALSE;
       if (false) {
         auto hits = event.getHits();
-	std::vector<float> energyDeex;
-	fRecoOrthoVtxPosX = 0;
-        fRecoOrthoVtxPosY = 0;
-        fRecoOrthoVtxPosZ = 0;
-	//I need to identify the prompt out of 4 hits and remove from hits to set the gammas for the GPS IP calculation
-	// alternatively I can create a new container (vector) as a copy of the hits so this is not altered
-	//I need to know also if isOPs or isPickOff
-	if(hits.size()>4)
-	  continue;
-	else{
-	  //	  std::cout << hits.size() << std::endl;
-	  for(int i = 0; i < hits.size(); i++){
-	    getStatistics().fillHistogram("Deex_Ene_mult4",hits.at(i).getEnergy());
-	    if(hits.at(i).getEnergy() >= 650 && hits.at(i).getEnergy() <= 1200){
-	      getStatistics().fillHistogram("Deex_Ene_energyWindow",hits.at(i).getEnergy());
-	      energyDeex.push_back(hits.at(i).getEnergy());
-	    }
-	  }
-	  getStatistics().fillHistogram("mult_prompt", energyDeex.size());
-	  auto result = std::max_element(energyDeex.begin(),energyDeex.end()); 
-	
-	  if(result!=energyDeex.end()){
-	    getStatistics().fillHistogram("Deex_Ene",*result);
-	    isPrompt = kTRUE;  
-	  }
-	  energyDeex.clear();
+        std::vector<float> energyDeex;
+        // I need to identify the prompt out of 4 hits and remove from hits to set the gammas for the GPS IP calculation
+        //  alternatively I can create a new container (vector) as a copy of the hits so this is not altered
+        // I need to know also if isOPs or isPickOff
+        if (hits.size() > 4)
+          continue;
+        else
+        {
+          //	  std::cout << hits.size() << std::endl;
+          for (int i = 0; i < hits.size(); i++)
+          {
+            getStatistics().fillHistogram("Deex_Ene_mult4", hits.at(i).getEnergy());
+            if (hits.at(i).getEnergy() >= 650 && hits.at(i).getEnergy() <= 1200)
+            {
+              getStatistics().fillHistogram("Deex_Ene_energyWindow", hits.at(i).getEnergy());
+              energyDeex.push_back(hits.at(i).getEnergy());
+            }
+          }
+          getStatistics().fillHistogram("mult_prompt", energyDeex.size());
+          auto result = std::max_element(energyDeex.begin(), energyDeex.end());
+
+          if (result != energyDeex.end())
+          {
+            getStatistics().fillHistogram("Deex_Ene", *result);
+            isPrompt = kTRUE;
+          }
+          energyDeex.clear();
 	}
       }
 

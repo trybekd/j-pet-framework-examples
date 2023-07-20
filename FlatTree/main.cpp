@@ -13,12 +13,13 @@
  *  @file main.cpp
  */
 
-#include "EventCategorizer.h"
 #include "../LargeBarrelAnalysis/EventFinder.h"
 #include "../LargeBarrelAnalysis/HitFinder.h"
 #include "../LargeBarrelAnalysis/SignalFinder.h"
 #include "../LargeBarrelAnalysis/SignalTransformer.h"
 #include "../LargeBarrelAnalysis/TimeWindowCreator.h"
+#include "EventCategorizer.h"
+#include "SourcePos.h"
 #include <JPetManager/JPetManager.h>
 using namespace std;
 
@@ -30,6 +31,7 @@ int main(int argc, const char* argv[]) {
     // manager.registerTask<SignalFinder>("SignalFinder");
     // manager.registerTask<SignalTransformer>("SignalTransformer");
     // manager.registerTask<HitFinder>("HitFinder");
+    manager.registerTask<EventFinder>("SourcePos");
     manager.registerTask<EventFinder>("EventFinder");
     manager.registerTask<EventCategorizer>("EventCategorizer");
 
@@ -37,6 +39,7 @@ int main(int argc, const char* argv[]) {
     //manager.useTask("SignalFinder", "tslot.calib", "raw.sig");
     //manager.useTask("SignalTransformer", "raw.sig", "phys.sig");
     //manager.useTask("HitFinder", "phys.sig", "hits");
+    manager.useTask("SourcePos", "mcGeant", "xd");
     manager.useTask("EventFinder", "hits", "unk.evt");
     manager.useTask("EventCategorizer", "unk.evt", "cat.evt");
 

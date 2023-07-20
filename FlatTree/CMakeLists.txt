@@ -53,7 +53,8 @@ set(HEADERS ${use_modules_from}/TimeWindowCreator.h
             #${use_modules_from}/EventCategorizer.h
             #${use_modules_from}/EventCategorizerTools.h)
             ../FlatTree/EventCategorizer.h
-            ../FlatTree/EventCategorizerTools.h)
+            ../FlatTree/EventCategorizerTools.h
+            ../FlatTree/SourcePos.h)
 
 set(SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
             ${use_modules_from}/TimeWindowCreator.cpp
@@ -70,7 +71,8 @@ set(SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
             #${use_modules_from}/EventCategorizer.cpp
             #${use_modules_from}/EventCategorizerTools.cpp)
             ../FlatTree/EventCategorizer.cpp
-            ../FlatTree/EventCategorizerTools.cpp)
+            ../FlatTree/EventCategorizerTools.cpp
+            ../FlatTree/SourcePos.cpp)
 
 add_executable(${projectBinary} ${SOURCES} ${HEADERS})
 target_link_libraries(${projectBinary} JPetFramework::JPetFramework)
