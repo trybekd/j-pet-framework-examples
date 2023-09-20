@@ -18,7 +18,7 @@ bool SourcePos::exec()
 {
   if (const auto& mcEventPack = dynamic_cast<JPetGeantEventPack* const>(fEvent))
   {
-    auto pos = mcEventPack->GetEventInformation()->GetVtxPosition();
+    auto pos = mcEventPack->GetEventInformation()->GetVtxPromptPosition();
     for (int i = 0; i < mcEventPack->GetNumberOfHits(); ++i)
     {
       auto evNum = mcEventPack->GetHit(i)->GetEvtID();

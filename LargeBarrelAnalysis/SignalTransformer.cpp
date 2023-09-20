@@ -62,7 +62,7 @@ bool SignalTransformer::init()
 
 bool SignalTransformer::exec()
 {
-  if(auto & timeWindow = dynamic_cast<const JPetTimeWindow* const>(fEvent)) {
+  if(auto timeWindow = dynamic_cast<const JPetTimeWindow* const>(fEvent)) {
     uint n = timeWindow->getNumberOfEvents();
     for(uint i=0;i<n;++i){
       auto& rawSignal = dynamic_cast<const JPetRawSignal&>(timeWindow->operator[](i));

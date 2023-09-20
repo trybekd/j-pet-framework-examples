@@ -224,6 +224,7 @@ bool EventCategorizer::exec()
           fRecoOrthoVtxPosX = pos.x();
           fRecoOrthoVtxPosY = pos.y();
           fRecoOrthoVtxPosZ = pos.z();
+          
         } else {
           fHitType.push_back(kUnknownEventType);
           fVtxIndex.push_back(0);

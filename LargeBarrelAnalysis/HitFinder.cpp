@@ -156,7 +156,7 @@ bool HitFinder::init()
 
 bool HitFinder::exec()
 {
-  if (auto& timeWindow = dynamic_cast<const JPetTimeWindow* const>(fEvent))
+  if (auto timeWindow = dynamic_cast<const JPetTimeWindow* const>(fEvent))
   {
     auto signalsBySlot = HitFinderTools::getSignalsBySlot(timeWindow, fUseCorruptedSignals);
     auto totConverter = fToTConverterFactory.getEnergyConverter();

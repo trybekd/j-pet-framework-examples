@@ -21,6 +21,8 @@
 #include "EventCategorizer.h"
 #include "SourcePos.h"
 #include <JPetManager/JPetManager.h>
+
+
 using namespace std;
 
 int main(int argc, const char* argv[]) {
@@ -31,7 +33,7 @@ int main(int argc, const char* argv[]) {
     // manager.registerTask<SignalFinder>("SignalFinder");
     // manager.registerTask<SignalTransformer>("SignalTransformer");
     // manager.registerTask<HitFinder>("HitFinder");
-    manager.registerTask<EventFinder>("SourcePos");
+    manager.registerTask<SourcePos>("SourcePos");
     manager.registerTask<EventFinder>("EventFinder");
     manager.registerTask<EventCategorizer>("EventCategorizer");
 
@@ -39,9 +41,20 @@ int main(int argc, const char* argv[]) {
     //manager.useTask("SignalFinder", "tslot.calib", "raw.sig");
     //manager.useTask("SignalTransformer", "raw.sig", "phys.sig");
     //manager.useTask("HitFinder", "phys.sig", "hits");
-    manager.useTask("SourcePos", "mcGeant", "xd");
+//    manager.useTask("SourcePos", "", "");
     manager.useTask("EventFinder", "hits", "unk.evt");
+//    manager.useTask("SourcePos", "", "unk.evt");
     manager.useTask("EventCategorizer", "unk.evt", "cat.evt");
+
+    JPetReader reader("/tmp/workdir/test.mcGeant.root", "T");
+    SourcePos sourcePos("SourcePos");
+    reader.firstEntry();
+    while(reader.getCurrentEntryNumber() < reader.getNbOfAllEntries()) {
+        TObject& entry = reader.getCurrentEntry();
+        sourcePos.setEvent(&entry);
+        sourcePos.exec();
+        reader.nextEntry();
+    }
 
     manager.run(argc, argv);
   } catch (const std::exception& except) {
